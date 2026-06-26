@@ -1,0 +1,3043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EMX Hub | Premium Investment Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.42.0/dist/umd/supabase.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        display: ['Playfair Display', 'serif'] 
+                    },
+                    colors: {
+                        gold: {
+                            300: '#f5e6a8',
+                            400: '#f0d878',
+                            500: '#d4af37',
+                            600: '#b8941f',
+                            700: '#8a6d14',
+                        },
+                        dark: {
+                            850: '#0a0a0a',
+                            900: '#050505',
+                            950: '#020202',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-dark-850/90 backdrop-blur-xl border border-gold-500/15;
+            }
+            .glass-input {
+                @apply bg-dark-850/60 backdrop-blur-md border border-gold-500/20 focus-within:border-gold-500/60 focus-within:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all;
+            }
+            .gold-gradient-text {
+                background: linear-gradient(135deg, #d4af37 0%, #f0d878 50%, #b8941f 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .gold-gradient-bg {
+                background: linear-gradient(135deg, #d4af37 0%, #f0d878 50%, #b8941f 100%);
+            }
+            .gold-border-hover:hover {
+                border-color: rgba(212, 175, 55, 0.5);
+                box-shadow: 0 0 30px rgba(212, 175, 55, 0.12);
+            }
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+            .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        }
+
+        body {
+            background-color: #020202;
+            color: #f0f0f0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .market-grid {
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.15); }
+            50% { box-shadow: 0 0 40px rgba(212,175,55,0.35); }
+        }
+        .animate-pulse-gold { animation: pulse-gold 2.5s ease-in-out infinite; }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #b8941f, #f0d878, #b8941f);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes toastSlideUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .toast-animate { animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-slow { animation: spin-slow 8s linear infinite; }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.08);
+            border-top-color: #d4af37;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin-slow 0.8s linear infinite;
+        }
+
+        .nav-ring-outer {
+            position: absolute; inset: 0; border-radius: 50%;
+            border: 2.5px solid rgba(212,175,55,0.1);
+            border-top-color: #d4af37;
+            border-right-color: rgba(212,175,55,0.4);
+            animation: spin-slow 1.3s cubic-bezier(0.4,0,0.6,1) infinite;
+        }
+        .nav-ring-inner {
+            position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(240,216,120,0.06);
+            border-bottom-color: #f0d878;
+            border-left-color: rgba(240,216,120,0.3);
+            animation: spin-slow 0.85s cubic-bezier(0.4,0,0.6,1) infinite reverse;
+        }
+
+        @keyframes navFadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .nav-fadein { animation: navFadeIn 0.25s ease-out forwards; }
+
+        .chart-bar {
+            background: linear-gradient(to top, rgba(212,175,55,0.3), rgba(212,175,55,0.05));
+            border-top: 2px solid #d4af37;
+        }
+
+        /* Info Dropdown */
+        .info-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out, padding 0.3s ease;
+            opacity: 0;
+            padding: 0 1rem;
+        }
+        .info-dropdown.open {
+            max-height: 400px;
+            opacity: 1;
+            padding: 1rem;
+        }
+
+        /* Stock Chart */
+        .stock-candle {
+            position: absolute;
+            bottom: 0;
+            width: 8px;
+            border-radius: 2px;
+            transition: height 0.5s ease;
+        }
+        .stock-candle.green {
+            background: linear-gradient(to top, #22c55e, #4ade80);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+        .stock-candle.red {
+            background: linear-gradient(to top, #ef4444, #f87171);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+        .stock-wick {
+            position: absolute;
+            width: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 1px;
+        }
+        .stock-wick.green { background: #4ade80; }
+        .stock-wick.red { background: #f87171; }
+        @keyframes stockPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .stock-candle { animation: stockPulse 2s ease-in-out infinite; }
+    </style>
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
+</head>
+<body class="antialiased flex justify-center items-start min-h-[100dvh] overflow-x-hidden market-grid">
+
+<div class="w-full max-w-md min-h-[100dvh] bg-dark-950 relative flex flex-col shadow-2xl overflow-x-hidden">
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay" class="fixed inset-0 z-[99999] bg-dark-950/90 backdrop-blur-md hidden flex-col items-center justify-center">
+        <div class="spinner mb-4"></div>
+        <div id="loadingText" class="text-gold-400 font-medium tracking-wide text-sm">Processing...</div>
+    </div>
+
+    <!-- NAVIGATION LOADING OVERLAY -->
+    <div id="navOverlay" class="fixed inset-0 z-[99998] bg-dark-950/95 backdrop-blur-xl hidden flex-col items-center justify-center">
+        <div class="nav-fadein flex flex-col items-center">
+            <div class="relative w-16 h-16 mb-7">
+                <div class="nav-ring-outer"></div>
+                <div class="nav-ring-inner"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="ph-fill ph-chart-line-up text-gold-400 text-[22px]"></i>
+                </div>
+            </div>
+            <div id="navOverlayText" class="text-white font-bold text-[15px] tracking-tight mb-1.5">Loading...</div>
+            <div id="navOverlaySubText" class="text-gold-500/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-8">Securing Connection</div>
+            <div class="w-44 h-[2px] bg-dark-850 rounded-full overflow-hidden">
+                <div id="navProgressBar" class="h-full gold-gradient-bg rounded-full" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANK DETAILS MODAL -->
+    <div id="bankDetailsModal" class="hidden fixed inset-0 z-[99995] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-dark-950/90 backdrop-blur-md" onclick="closeBankModal()"></div>
+        <div class="relative z-10 w-full max-w-sm glass-panel rounded-3xl border border-gold-500/30 bg-gradient-to-b from-dark-850 to-dark-950 overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)]">
+            <div class="h-1 w-full gold-gradient-bg opacity-70"></div>
+            <div class="p-6 flex flex-col relative">
+                <button onclick="closeBankModal()" class="absolute top-3 right-3 w-8 h-8 bg-dark-850 rounded-full flex items-center justify-center text-gold-500/50 hover:text-gold-400 transition border border-gold-500/10">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+                <div class="w-12 h-12 rounded-2xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-4 mx-auto">
+                    <i class="ph-fill ph-bank text-2xl text-gold-400"></i>
+                </div>
+                <h3 class="text-lg font-extrabold text-white tracking-tight font-display text-center mb-1">Bank Details</h3>
+                <p class="text-gold-500/50 text-xs text-center mb-5 leading-relaxed">Required for deposits and withdrawals</p>
+                <div class="space-y-3 mb-5">
+                    <div class="glass-input flex items-center h-12 rounded-xl px-4">
+                        <i class="ph ph-buildings text-gold-500/50 text-lg mr-3"></i>
+                        <input type="text" id="bankNameInput" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30 text-sm" placeholder="Bank Name">
+                    </div>
+                    <div class="glass-input flex items-center h-12 rounded-xl px-4">
+                        <i class="ph ph-hash text-gold-500/50 text-lg mr-3"></i>
+                        <input type="tel" id="bankAccNumberInput" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30 text-sm" placeholder="10-digit Account Number">
+                    </div>
+                    <div class="glass-input flex items-center h-12 rounded-xl px-4">
+                        <i class="ph ph-user text-gold-500/50 text-lg mr-3"></i>
+                        <input type="text" id="bankAccNameInput" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30 text-sm" placeholder="Account Holder Name">
+                    </div>
+                </div>
+                <button onclick="saveBankDetails()" class="gold-gradient-bg w-full h-12 rounded-full text-sm font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all active:scale-95">
+                    Save Bank Details <i class="ph-bold ph-floppy-disk"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ASSISTANT MODAL -->
+    <div id="assistantModal" class="hidden fixed inset-0 z-[99994] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-dark-950/90 backdrop-blur-md" onclick="closeAssistantModal()"></div>
+        <div class="relative z-10 w-full max-w-sm glass-panel rounded-3xl border border-gold-500/30 bg-gradient-to-b from-dark-850 to-dark-950 overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)]">
+            <div class="h-1 w-full gold-gradient-bg opacity-70"></div>
+            <div class="p-6 flex flex-col relative">
+                <button onclick="closeAssistantModal()" class="absolute top-3 right-3 w-8 h-8 bg-dark-850 rounded-full flex items-center justify-center text-gold-500/50 hover:text-gold-400 transition border border-gold-500/10">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+                <div class="w-12 h-12 rounded-2xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-4 mx-auto">
+                    <i class="ph-fill ph-users-three text-2xl text-gold-400"></i>
+                </div>
+                <h3 class="text-lg font-extrabold text-white tracking-tight font-display text-center mb-1">Assistant Program</h3>
+                <p class="text-gold-500/50 text-xs text-center mb-5 leading-relaxed">Earn monthly rewards by growing your network</p>
+                <div class="space-y-3 mb-5 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="p-4 rounded-xl bg-dark-850 border border-gold-500/10">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="text-sm font-bold text-white">EMX Junior</div>
+                                <div class="text-gold-400 font-bold text-sm">₦50,000/mo</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-gold-500/50 mt-2 mb-2 leading-relaxed">
+                            <div class="mb-1"><strong class="text-gold-400">Qualification Requirements:</strong></div>
+                            <div class="space-y-0.5">
+                                <div>• Min 8 verified active referrals in EMX s1a</div>
+                                <div>• Min 5 verified active referrals in EMX s1b</div>
+                                <div>• Min 5 verified active referrals in EMX s2a</div>
+                                <div>• Min 5 verified active referrals in EMX s2b</div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gold-500/10">
+                                <div><strong class="text-gold-400">Locked Total:</strong> 23 referrals</div>
+                                <div><strong class="text-gold-400">Flexible:</strong> 5 additional from any level</div>
+                                <div class="text-gold-400 font-bold mt-1">Total: 28 Verified Active Referrals</div>
+                            </div>
+                        </div>
+                        <button onclick="applyAssistant('junior')" id="applyJuniorBtn" class="w-full mt-2 py-2 rounded-lg bg-gold-500/10 text-gold-400 text-xs font-bold border border-gold-500/20 hover:bg-gold-500/20 transition">Apply Now</button>
+                    </div>
+                    <div class="p-4 rounded-xl bg-dark-850 border border-gold-500/10">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="text-sm font-bold text-white">EMX Senior</div>
+                                <div class="text-gold-400 font-bold text-sm">₦100,000/mo</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-gold-500/50 mt-2 mb-2 leading-relaxed">
+                            <div class="mb-1"><strong class="text-gold-400">Qualification Requirements:</strong></div>
+                            <div class="space-y-0.5">
+                                <div>• 6 referrals who qualified for Junior Assistant (₦50K)</div>
+                                <div>• 6 referrals who qualified for Senior Assistant (₦100K)</div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gold-500/10 text-gold-400/70">
+                                Only fully qualified assistants count.
+                            </div>
+                        </div>
+                        <button onclick="applyAssistant('senior')" id="applySeniorBtn" class="w-full mt-2 py-2 rounded-lg bg-gold-500/10 text-gold-400 text-xs font-bold border border-gold-500/20 hover:bg-gold-500/20 transition">Apply Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH PAGE -->
+    <div id="authPage" class="flex flex-col min-h-[100dvh] relative z-10">
+        <div class="absolute top-[-80px] right-[-80px] w-56 h-56 bg-gold-500/10 rounded-full blur-[80px]"></div>
+        <div class="absolute top-[15%] left-[-80px] w-56 h-56 bg-gold-600/10 rounded-full blur-[80px]"></div>
+
+        <div class="pt-16 pb-8 px-6 text-center relative z-10">
+            <div class="w-20 h-20 mx-auto rounded-full bg-dark-850 border border-gold-500/30 flex items-center justify-center mb-5 shadow-[0_0_40px_rgba(212,175,55,0.15)] relative">
+                <i class="ph-fill ph-chart-line-up text-4xl text-gold-400"></i>
+                <div class="absolute inset-0 rounded-full border border-gold-400/30 animate-ping opacity-20"></div>
+            </div>
+            <h1 class="text-3xl font-black tracking-tight gold-gradient-text font-display">EMX Hub</h1>
+            <p class="text-gold-500/60 mt-2 text-sm font-medium tracking-wide">Premium Investment Platform</p>
+        </div>
+
+        <div class="flex-1 px-6 pb-12 relative z-10">
+            <div class="flex bg-dark-850/80 backdrop-blur-md p-1.5 rounded-full border border-gold-500/15 mb-8">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-3 text-sm font-bold rounded-full bg-dark-850 text-gold-400 shadow-md transition-all border border-gold-500/20">Login</button>
+                <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-3 text-sm font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="space-y-4">
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-user text-gold-500/50 text-xl mr-3"></i>
+                    <input type="text" id="loginUsername" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Username" autocomplete="off">
+                </div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-lock-key text-gold-500/50 text-xl mr-3"></i>
+                    <input type="password" id="loginPassword" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Password" autocomplete="off">
+                </div>
+                <button type="button" onclick="handleLogin()" class="gold-gradient-bg w-full h-14 rounded-full mt-6 text-[15px] font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all active:scale-95 hover:shadow-[0_0_35px_rgba(212,175,55,0.5)]">
+                    Access Portal <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="space-y-4 hidden">
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-user text-gold-500/50 text-xl mr-3"></i>
+                    <input type="text" id="signupUsername" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Choose Username" autocomplete="off">
+                </div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-phone text-gold-500/50 text-xl mr-3"></i>
+                    <input type="tel" id="signupPhone" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Phone Number" autocomplete="off">
+                </div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-lock-key text-gold-500/50 text-xl mr-3"></i>
+                    <input type="password" id="signupPassword" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Create Password" autocomplete="off">
+                </div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-map-pin text-gold-500/50 text-xl mr-3"></i>
+                    <select id="signupRegion" class="bg-transparent w-full h-full outline-none text-white appearance-none">
+                        <option value="" disabled selected class="bg-dark-950 text-gold-500/30">Select Region</option>
+                        <option value="North-Central" class="bg-dark-950">North-Central</option>
+                        <option value="North-West" class="bg-dark-950">North-West</option>
+                        <option value="North-East" class="bg-dark-950">North-East</option>
+                        <option value="South-West" class="bg-dark-950">South-West</option>
+                        <option value="South-South" class="bg-dark-950">South-South</option>
+                        <option value="South-East" class="bg-dark-950">South-East</option>
+                    </select>
+                </div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-5">
+                    <i class="ph ph-users text-gold-500/50 text-xl mr-3"></i>
+                    <input type="text" id="signupReferral" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30" placeholder="Referral Code (Optional)" autocomplete="off">
+                </div>
+                <button type="button" onclick="processSignup()" class="gold-gradient-bg w-full h-14 rounded-full mt-6 text-[15px] font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all active:scale-95 hover:shadow-[0_0_35px_rgba(212,175,55,0.5)]">
+                    Create Account <i class="ph-bold ph-user-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <div id="homePage" class="hidden flex-col min-h-[100dvh] pb-24 relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-6 pt-8 z-10 relative">
+            <div>
+                <div class="text-[10px] text-gold-500/50 font-bold tracking-[0.2em] uppercase">EMX Hub</div>
+                <div class="text-lg font-bold text-white tracking-tight font-display" id="welcomeMessage">Welcome</div>
+            </div>
+            <button id="adminLaunchBtn" onclick="navigateTo('adminPage')" class="hidden w-10 h-10 rounded-full bg-gold-500/10 text-gold-400 border border-gold-500/30 items-center justify-center transition hover:bg-gold-500/20">
+                <i class="ph-fill ph-shield-check text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Announcement Banner -->
+        <div id="announcementBanner" class="hidden mx-6 mb-4 glass-panel border-gold-500/30 bg-gold-500/5 rounded-xl p-3 flex items-center gap-3 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 pointer-events-none"></div>
+            <i class="ph-fill ph-megaphone text-gold-400 text-xl flex-shrink-0"></i>
+            <div class="text-xs text-gold-300/90 font-medium leading-relaxed flex-1" id="announcementText"></div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="px-6 mb-6 z-10 relative">
+            <div class="glass-panel rounded-3xl p-6 relative overflow-hidden border-gold-500/20">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="ph-fill ph-chart-line-up text-6xl text-gold-400"></i>
+                </div>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-2">Investment Overview</div>
+                <h2 class="text-2xl font-black text-white font-display leading-tight mb-2">Global Financial<br><span class="gold-gradient-text">Growth Engine</span></h2>
+                <p class="text-xs text-gold-500/50 leading-relaxed mb-4">Access foreign stocks, crypto markets, and premium growth opportunities through our innovative investment technology.</p>
+                <div class="stock-chart-container relative h-24 mt-2 overflow-hidden rounded-xl" id="stockChart">
+                    <div class="stock-grid absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 20px 20px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check-In Section -->
+        <div class="px-6 mb-6 z-10 relative">
+            <div class="glass-panel rounded-3xl p-6 border-gold-500/30 bg-gradient-to-b from-gold-500/10 to-dark-850/50 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-gold-500/5 via-transparent to-gold-500/5 pointer-events-none"></div>
+                <div class="text-center relative z-10">
+                    <div class="text-[10px] font-bold tracking-[0.2em] text-gold-400/70 uppercase mb-4">Daily Reward</div>
+                    <div id="checkinBtn" onclick="handleCheckIn()" class="w-24 h-24 mx-auto rounded-full gold-gradient-bg flex items-center justify-center shadow-[0_0_40px_rgba(212,175,55,0.4)] cursor-pointer transition-all active:scale-95 hover:shadow-[0_0_60px_rgba(212,175,55,0.6)] mb-4 relative">
+                        <div class="absolute inset-0 rounded-full gold-gradient-bg opacity-20 animate-ping"></div>
+                        <div class="text-center">
+                            <i class="ph-bold ph-check-circle text-dark-950 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div id="checkinLabel" class="text-white font-bold text-lg mb-1">CHECK IN</div>
+                    <div id="checkinTimer" class="text-gold-400/70 text-xs font-medium">Ready to claim</div>
+                    <div id="checkinReward" class="hidden text-gold-400 text-sm font-bold mt-2">+₦0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Description -->
+        <div class="px-6 mb-6 z-10 relative">
+            <div class="glass-panel rounded-2xl p-5 border-gold-500/10">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="ph-fill ph-buildings text-gold-400 text-lg"></i>
+                    <span class="text-xs font-bold text-gold-500/50 uppercase tracking-widest">About EMX Hub</span>
+                </div>
+                <p class="text-xs text-gold-500/40 leading-relaxed" id="companyDescription">
+                    EMX Hub is inspired by the global investment sector, offering access to foreign stocks, growth opportunities, and innovative investment technology. We deliver client rewards through financial innovation and premium market exposure.
+                </p>
+            </div>
+        </div>
+
+        <!-- Investment Plans -->
+        <div class="px-6 mb-6 z-10 relative">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold text-gold-500/50 uppercase tracking-widest">Investment Plans</span>
+                <button onclick="navigateTo('depositPage')" class="text-[10px] font-bold text-gold-400 flex items-center gap-1 hover:text-gold-300 transition">
+                    View All <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+            <div id="homePlansGrid" class="grid grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Telegram CTA -->
+        <div class="px-6 mb-4 z-10 relative">
+            <button onclick="openTelegramPopup()" class="w-full glass-panel rounded-2xl p-4 flex items-center gap-4 border-gold-500/20 hover:border-gold-500/40 transition-all active:scale-95">
+                <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center flex-shrink-0">
+                    <i class="ph-fill ph-telegram-logo text-2xl text-gold-400"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <div class="text-white font-bold text-sm">Join Our Community</div>
+                    <div class="text-gold-500/50 text-xs mt-0.5">Get updates and support</div>
+                </div>
+                <i class="ph-bold ph-caret-right text-gold-500/30"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- DEPOSIT PAGE -->
+    <div id="depositPage" class="hidden flex-col min-h-[100dvh] pb-24 bg-dark-950 z-20">
+        <div class="sticky top-0 z-30 bg-dark-950/80 backdrop-blur-xl border-b border-gold-500/10 flex items-center justify-between px-4 py-4">
+            <button onclick="goBackToHome()" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-white font-display">Make Deposit</h2>
+            <button onclick="toggleInfoDropdown('depositInfo')" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-info text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Info Dropdown -->
+        <div id="depositInfo" class="info-dropdown glass-panel border-gold-500/20 mx-4 mb-4 rounded-xl text-xs text-gold-500/60 leading-relaxed">
+            <div class="mb-2"><strong class="text-gold-400">How it works:</strong> Select an investment plan, transfer the exact amount to the provided account, then tap Confirm Payment. Our team will verify and activate your investment.</div>
+            <div class="mb-2"><strong class="text-gold-400">Daily Check-In:</strong> Earn 20% of your active investment daily by checking in manually.</div>
+            <div><strong class="text-gold-400">Capital Recovery:</strong> Total capital recovery takes approximately 5 days of consecutive check-ins.</div>
+        </div>
+
+        <div class="p-6">
+            <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-4">Select Investment Plan</div>
+            <div id="depositPlanGrid" class="grid grid-cols-2 gap-3 mb-6"></div>
+
+            <div id="depositDetails" class="hidden glass-panel rounded-2xl p-5 mb-6 border-gold-500/30 bg-gradient-to-b from-gold-500/5 to-dark-850/50">
+                <div class="text-center mb-4">
+                    <div class="text-gold-400 text-xs font-bold uppercase tracking-widest mb-1" id="selectedStage">Stage</div>
+                    <div class="text-3xl font-black text-white font-display" id="selectedAmount">₦0</div>
+                    <div class="text-gold-500/50 text-xs mt-1" id="selectedName">Plan Name</div>
+                </div>
+                <div class="h-px bg-gold-500/10 mb-4"></div>
+                <div class="flex justify-between text-xs mb-2">
+                    <span class="text-gold-500/50">Daily Check-In Reward</span>
+                    <span class="text-gold-400 font-bold" id="selectedDaily">+₦0</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-gold-500/50">Daily Return Rate</span>
+                    <span class="text-gold-400 font-bold">20%</span>
+                </div>
+            </div>
+
+            <!-- Proceed to Payment Button (shown after plan selection) -->
+            <button onclick="showPaymentInstructions()" id="proceedPaymentBtn" class="hidden gold-gradient-bg w-full h-14 rounded-full text-[15px] font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all active:scale-95 hover:shadow-[0_0_35px_rgba(212,175,55,0.5)]">
+                Proceed to Payment <i class="ph-bold ph-arrow-right"></i>
+            </button>
+
+            <!-- Payment Instructions Section -->
+            <div id="paymentInstructionsSection" class="hidden">
+                <button onclick="backToPlanSelection()" class="text-gold-400 text-xs font-bold flex items-center gap-1 mb-4 hover:text-gold-300 transition">
+                    <i class="ph-bold ph-arrow-left"></i> Change Plan
+                </button>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Payment Instructions</div>
+                <div class="glass-panel rounded-2xl p-5 mb-4 border-gold-500/30 bg-gradient-to-b from-gold-500/5 to-dark-850/50">
+                    <div class="text-center mb-4">
+                        <div class="text-gold-400 text-xs font-bold uppercase tracking-widest mb-1" id="paymentPlanName">Stage</div>
+                        <div class="text-2xl font-black text-white font-display" id="paymentPlanAmount">₦0</div>
+                    </div>
+                    <div class="h-px bg-gold-500/10 mb-4"></div>
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between items-center border-b border-gold-500/10 pb-2">
+                            <span class="text-gold-500/50">Bank</span>
+                            <span class="text-white font-medium" id="payBankName">—</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-gold-500/10 pb-2">
+                            <span class="text-gold-500/50">Account No.</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-white font-medium font-mono" id="payAccNum">—</span>
+                                <button onclick="copyText(document.getElementById('payAccNum').textContent)" class="text-gold-400 text-[10px] font-bold hover:text-gold-300">COPY</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-500/50">Account Name</span>
+                            <span class="text-white font-medium" id="payAccName">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 mb-6 border-gold-500/20 bg-gold-500/5">
+                    <div class="flex items-center gap-3">
+                        <i class="ph-fill ph-warning-circle text-gold-400 text-xl"></i>
+                        <div class="text-xs text-gold-300/90 font-medium leading-relaxed" id="paymentReminderText">Send exactly the amount to the account above, then tap Confirm Payment below.</div>
+                    </div>
+                </div>
+                <button onclick="confirmPayment()" id="confirmPaymentBtn" class="gold-gradient-bg w-full h-14 rounded-full text-[15px] font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all active:scale-95 hover:shadow-[0_0_35px_rgba(212,175,55,0.5)]">
+                    Confirm Payment <i class="ph-bold ph-check-circle"></i>
+                </button>
+            </div>
+
+            <!-- Deposit History -->
+            <div class="mt-8">
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Recent Deposits</div>
+                <div id="depositHistoryList" class="space-y-3">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">No deposits yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WITHDRAW PAGE -->
+    <div id="withdrawPage" class="hidden flex-col min-h-[100dvh] pb-24 bg-dark-950 z-20">
+        <div class="sticky top-0 z-30 bg-dark-950/80 backdrop-blur-xl border-b border-gold-500/10 flex items-center justify-between px-4 py-4">
+            <button onclick="goBackToHome()" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-white font-display">Withdraw Funds</h2>
+            <button onclick="toggleInfoDropdown('withdrawInfo')" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-info text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Info Dropdown -->
+        <div id="withdrawInfo" class="info-dropdown glass-panel border-gold-500/20 mx-4 mb-4 rounded-xl text-xs text-gold-500/60 leading-relaxed">
+            <div class="mb-2"><strong class="text-gold-400">Time Window:</strong> Withdrawals are only processed between 9:00 AM and 5:00 PM daily.</div>
+            <div class="mb-2"><strong class="text-gold-400">Processing Fee:</strong> A standard 15% processing fee applies to all withdrawals.</div>
+            <div><strong class="text-gold-400">Approval:</strong> All withdrawals require admin approval. You will be notified once processed.</div>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Time Window Status -->
+            <div id="withdrawTimeBanner" class="glass-panel rounded-2xl p-4 flex items-center gap-3 border-gold-500/20">
+                <div class="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center flex-shrink-0">
+                    <i class="ph-fill ph-clock text-gold-400 text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-bold text-white" id="withdrawTimeTitle">Checking hours...</div>
+                    <div class="text-xs text-gold-500/50 mt-0.5" id="withdrawTimeDesc">9:00 AM — 5:00 PM daily</div>
+                </div>
+            </div>
+
+            <!-- Bank Details -->
+            <div>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Receiving Account</div>
+                <div class="glass-panel border-dashed border-gold-500/20 p-4 rounded-2xl">
+                    <div class="text-sm font-bold text-white" id="wBankName">—</div>
+                    <div class="text-xs text-gold-500/50 mt-1"><span id="wAccNumber">—</span> · <span id="wAccName">—</span></div>
+                </div>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Amount to Withdraw</div>
+                <div class="glass-input flex items-center h-14 rounded-xl px-4">
+                    <span class="text-gold-500/50 font-bold mr-2 text-lg">₦</span>
+                    <input type="number" id="withdrawAmount" oninput="updateWithdrawFee()" class="bg-transparent w-full h-full outline-none text-white font-bold placeholder-gold-500/30 text-lg" placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Fee Summary -->
+            <div id="withdrawFeeSummary" class="hidden glass-panel border-gold-500/30 bg-gold-500/5 p-4 rounded-2xl text-xs text-gold-400/90 leading-relaxed"></div>
+
+            <button onclick="requestWithdrawal()" id="withdrawSubmitBtn" class="gold-gradient-bg w-full h-14 rounded-full text-[15px] font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all active:scale-95 hover:shadow-[0_0_35px_rgba(212,175,55,0.5)]">
+                Submit Request <i class="ph-bold ph-paper-plane-right"></i>
+            </button>
+
+            <!-- Withdrawal History -->
+            <div class="mt-4">
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Recent Withdrawals</div>
+                <div id="withdrawHistoryList" class="space-y-3">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">No withdrawals yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="profilePage" class="hidden flex-col min-h-[100dvh] pb-24 bg-dark-950 z-20">
+        <div class="sticky top-0 z-30 bg-dark-950/80 backdrop-blur-xl border-b border-gold-500/10 flex items-center justify-between px-4 py-4">
+            <button onclick="goBackToHome()" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-white font-display">My Profile</h2>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Action Buttons Row -->
+            <div class="flex justify-between items-center px-1">
+                <button onclick="openBankModal()" class="w-14 h-14 rounded-full bg-gold-500/10 border border-gold-500/30 flex flex-col items-center justify-center gap-0.5 transition hover:bg-gold-500/20 hover:border-gold-500/50 active:scale-95 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                    <i class="ph-fill ph-bank text-gold-400 text-lg"></i>
+                    <span class="text-[7px] text-gold-500/60 font-bold uppercase tracking-wider">Bank</span>
+                </button>
+                <button onclick="openAssistantModal()" class="w-14 h-14 rounded-full bg-gold-500/10 border border-gold-500/30 flex flex-col items-center justify-center gap-0.5 transition hover:bg-gold-500/20 hover:border-gold-500/50 active:scale-95 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                    <i class="ph-fill ph-users-three text-gold-400 text-lg"></i>
+                    <span class="text-[7px] text-gold-500/60 font-bold uppercase tracking-wider">Assistant</span>
+                </button>
+            </div>
+
+            <!-- User Header -->
+            <div class="glass-panel rounded-3xl p-6 text-center relative overflow-hidden border-gold-500/20">
+                <div class="absolute top-[-30px] right-[-30px] w-24 h-24 bg-gold-500/10 rounded-full blur-[30px]"></div>
+                <div class="w-16 h-16 mx-auto rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mb-3">
+                    <i class="ph-fill ph-user text-3xl text-gold-400"></i>
+                </div>
+                <div class="text-white font-bold text-lg" id="profileUsername">—</div>
+                <div class="text-gold-500/50 text-xs mt-1" id="profilePhone">—</div>
+                <div class="mt-3 inline-flex items-center gap-2 bg-dark-850 border border-gold-500/20 px-3 py-1.5 rounded-lg">
+                    <span class="text-gold-400 text-xs font-mono font-bold" id="profileReferralCode">—</span>
+                    <button onclick="copyCode(false)" class="text-gold-500/50 hover:text-gold-400 transition">
+                        <i class="ph-bold ph-copy text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="glass-panel rounded-3xl p-6 relative overflow-hidden border-gold-500/30 bg-gradient-to-b from-gold-500/10 to-dark-850/50">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="ph-fill ph-wallet text-6xl text-gold-400"></i>
+                </div>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-2">Available Balance</div>
+                <div class="text-4xl font-black text-white font-display tracking-tight mb-4" id="profileBalance">₦0.00</div>
+                <div class="h-px w-full bg-gold-500/10 mb-4"></div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="text-center">
+                        <div class="text-[10px] text-gold-500/40 uppercase font-bold">Total Deposits</div>
+                        <div class="text-sm font-bold text-gold-400 mt-1" id="profileTotalDeposits">₦0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-gold-500/40 uppercase font-bold">Total Withdrawals</div>
+                        <div class="text-sm font-bold text-gold-400 mt-1" id="profileTotalWithdrawals">₦0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-gold-500/40 uppercase font-bold">Total Income</div>
+                        <div class="text-sm font-bold text-gold-400 mt-1" id="profileTotalIncome">₦0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">Check-In Earnings</div>
+                    <div class="text-lg font-bold text-gold-400" id="profileCheckinEarnings">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">Referral Earnings</div>
+                    <div class="text-lg font-bold text-gold-400" id="profileReferralEarnings">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">Active Investment</div>
+                    <div class="text-lg font-bold text-white" id="profileLockedCapital">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">Member Since</div>
+                    <div class="text-lg font-bold text-white" id="profileRegDate">—</div>
+                </div>
+            </div>
+
+            <!-- Referral Actions -->
+            <div class="glass-panel rounded-2xl p-5 border-gold-500/10">
+                <button onclick="navigateTo('referralPage')" class="w-full glass-panel rounded-xl p-3 flex items-center gap-3 border-gold-500/20 hover:border-gold-500/40 transition-all active:scale-95 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center flex-shrink-0">
+                        <i class="ph-fill ph-users-three text-gold-400 text-xl"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <div class="text-white font-bold text-sm">Referral Tracking</div>
+                        <div class="text-gold-500/50 text-xs mt-0.5">View detailed referral stats</div>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-gold-500/30"></i>
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="copyCode(false)" class="flex-1 bg-dark-850 text-gold-400 font-bold py-3 rounded-xl border border-gold-500/20 hover:bg-dark-850/80 transition flex items-center justify-center gap-2 text-xs">
+                        <i class="ph-bold ph-copy"></i> Copy Code
+                    </button>
+                    <button onclick="copyCode(true)" class="flex-1 gold-gradient-bg text-dark-950 font-bold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2 text-xs">
+                        <i class="ph-bold ph-link"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Settings -->
+            <div>
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Personal Details</div>
+                <div class="space-y-3">
+                    <div class="glass-input flex items-center h-12 rounded-xl px-4">
+                        <i class="ph ph-user text-gold-500/50 text-lg mr-3"></i>
+                        <input type="text" id="profileFullName" class="bg-transparent w-full h-full outline-none text-white placeholder-gold-500/30 text-sm" placeholder="Full Name">
+                    </div>
+                    <div class="glass-input flex items-center h-12 rounded-xl px-4">
+                        <i class="ph ph-map-pin text-gold-500/50 text-lg mr-3"></i>
+                        <select id="profileRegion" class="bg-transparent w-full h-full outline-none text-white appearance-none text-sm">
+                            <option value="" disabled class="bg-dark-950 text-gold-500/30">Select Region</option>
+                            <option value="North-Central" class="bg-dark-950">North-Central</option>
+                            <option value="North-West" class="bg-dark-950">North-West</option>
+                            <option value="North-East" class="bg-dark-950">North-East</option>
+                            <option value="South-West" class="bg-dark-950">South-West</option>
+                            <option value="South-South" class="bg-dark-950">South-South</option>
+                            <option value="South-East" class="bg-dark-950">South-East</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="saveProfile()" class="gold-gradient-bg w-full h-12 rounded-full mt-3 text-sm font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all active:scale-95">
+                    Save Changes <i class="ph-bold ph-floppy-disk"></i>
+                </button>
+            </div>
+
+            <!-- Transaction History Link -->
+            <button onclick="navigateTo('historyPage')" class="w-full glass-panel rounded-2xl p-4 flex items-center gap-4 border-gold-500/20 hover:border-gold-500/40 transition-all active:scale-95">
+                <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center flex-shrink-0">
+                    <i class="ph-fill ph-receipt text-gold-400 text-xl"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <div class="text-white font-bold text-sm">Transaction History</div>
+                    <div class="text-gold-500/50 text-xs mt-0.5">View all your records</div>
+                </div>
+                <i class="ph-bold ph-caret-right text-gold-500/30"></i>
+            </button>
+
+            <!-- Logout -->
+            <button onclick="handleLogout()" class="w-full glass-panel rounded-2xl p-4 flex items-center gap-4 border-red-500/20 hover:bg-red-500/5 transition-all active:scale-95">
+                <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                    <i class="ph-fill ph-sign-out text-red-400 text-xl"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <div class="text-red-400 font-bold text-sm">Secure Logout</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="historyPage" class="hidden flex-col min-h-[100dvh] pb-24 bg-dark-950 z-20">
+        <div class="sticky top-0 z-30 bg-dark-950/80 backdrop-blur-xl border-b border-gold-500/10 flex items-center justify-between px-4 py-4">
+            <button onclick="goBackToHome()" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-white font-display">Transaction Log</h2>
+            <div class="w-10"></div>
+        </div>
+        <div class="p-4">
+            <div class="flex gap-2 mb-4 overflow-x-auto hide-scrollbar">
+                <button onclick="filterHistory('all')" class="history-filter px-4 py-2 rounded-full text-xs font-bold bg-gold-500/20 text-gold-400 border border-gold-500/30 whitespace-nowrap active" data-filter="all">All</button>
+                <button onclick="filterHistory('deposit')" class="history-filter px-4 py-2 rounded-full text-xs font-bold bg-dark-850 text-gold-500/50 border border-gold-500/10 whitespace-nowrap" data-filter="deposit">Deposits</button>
+                <button onclick="filterHistory('withdrawal')" class="history-filter px-4 py-2 rounded-full text-xs font-bold bg-dark-850 text-gold-500/50 border border-gold-500/10 whitespace-nowrap" data-filter="withdrawal">Withdrawals</button>
+                <button onclick="filterHistory('checkin')" class="history-filter px-4 py-2 rounded-full text-xs font-bold bg-dark-850 text-gold-500/50 border border-gold-500/10 whitespace-nowrap" data-filter="checkin">Check-Ins</button>
+                <button onclick="filterHistory('referral')" class="history-filter px-4 py-2 rounded-full text-xs font-bold bg-dark-850 text-gold-500/50 border border-gold-500/10 whitespace-nowrap" data-filter="referral">Referrals</button>
+            </div>
+            <div id="historyFeed" class="space-y-3">
+                <div class="text-center text-gold-500/30 py-10 text-sm">Loading history...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REFERRAL TRACKING PAGE -->
+    <div id="referralPage" class="hidden flex-col min-h-[100dvh] pb-24 bg-dark-950 z-20">
+        <div class="sticky top-0 z-30 bg-dark-950/80 backdrop-blur-xl border-b border-gold-500/10 flex items-center justify-between px-4 py-4">
+            <button onclick="goBackToHome()" class="w-10 h-10 flex items-center justify-center text-gold-500/50 hover:text-gold-400 rounded-full bg-dark-850 transition">
+                <i class="ph-bold ph-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-white font-display">Referral Tracking</h2>
+            <div class="w-10"></div>
+        </div>
+        <div class="p-6">
+            <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-4">Verified Active Referrals by Tier</div>
+            <div class="grid grid-cols-2 gap-3" id="referralTrackingGrid">
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX s1a</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS1a">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦5,500</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX s1b</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS1b">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦10,500</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX s2a</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS2a">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦25,000</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX s2b</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS2b">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦50,000</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX 3a</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS3a">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦120,000</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX 3b</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS3b">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦309,000</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/10 text-center">
+                    <div class="text-[10px] text-gold-500/40 uppercase font-bold mb-1">EMX 4a</div>
+                    <div class="text-2xl font-black text-gold-400" id="trackS4a">0</div>
+                    <div class="text-[9px] text-gold-500/30 mt-1">₦610,000</div>
+                </div>
+            </div>
+            <div class="mt-6 glass-panel rounded-2xl p-4 border-gold-500/10">
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-3">Your Referral Code</div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 glass-input rounded-xl px-4 py-3 text-center">
+                        <span class="text-gold-400 text-sm font-mono font-bold" id="trackReferralCode">—</span>
+                    </div>
+                    <button onclick="copyCode(false)" class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-400 hover:bg-gold-500/20 transition">
+                        <i class="ph-bold ph-copy text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PAGE -->
+    <div id="adminPage" class="hidden flex-col min-h-[100dvh] bg-dark-950 z-40 pb-24">
+        <div class="sticky top-0 z-30 bg-dark-850/95 backdrop-blur-xl border-b border-gold-500/10 px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-shield-star text-gold-400 text-xl"></i>
+                <h2 class="text-lg font-bold text-white font-display">Admin Portal</h2>
+            </div>
+            <button onclick="goBackToHome()" class="w-9 h-9 flex items-center justify-center rounded-full bg-dark-850 text-gold-500/50 hover:text-gold-400 transition border border-gold-500/10">
+                <i class="ph-bold ph-x text-lg"></i>
+            </button>
+        </div>
+
+        <div class="p-4 space-y-5">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/20 bg-gold-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Total Users</div>
+                    <div id="adminTotalUsers" class="text-2xl font-black text-white tracking-tight">0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/20 bg-gold-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Active Users</div>
+                    <div id="adminActiveUsers" class="text-2xl font-black text-gold-400 tracking-tight">0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/20 bg-gold-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Total Deposits</div>
+                    <div id="adminTotalDeposits" class="text-2xl font-black text-gold-400 tracking-tight">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-red-500/20 bg-red-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Total Withdrawals</div>
+                    <div id="adminTotalWithdrawals" class="text-2xl font-black text-red-400 tracking-tight">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/20 bg-gold-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Total Rewards</div>
+                    <div id="adminTotalRewards" class="text-2xl font-black text-gold-400 tracking-tight">₦0</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-gold-500/20 bg-gold-500/5">
+                    <div class="text-[10px] font-bold text-gold-500/50 uppercase tracking-widest mb-1">Pending</div>
+                    <div id="adminPendingCount" class="text-2xl font-black text-white tracking-tight">0</div>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="flex bg-dark-850/80 backdrop-blur p-1 rounded-full border border-gold-500/10 overflow-x-auto hide-scrollbar">
+                <button onclick="switchAdminTab('users')" id="adminTabUsers" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full bg-dark-850 text-gold-400 shadow-md transition-all whitespace-nowrap px-3">Users</button>
+                <button onclick="switchAdminTab('deposits')" id="adminTabDep" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all whitespace-nowrap px-3">Deposits</button>
+                <button onclick="switchAdminTab('withdrawals')" id="adminTabWd" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all whitespace-nowrap px-3">Withdrawals</button>
+                <button onclick="switchAdminTab('checkins')" id="adminTabCheckin" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all whitespace-nowrap px-3">Check-Ins</button>
+                <button onclick="switchAdminTab('assistants')" id="adminTabAssist" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all whitespace-nowrap px-3">Assistants</button>
+                <button onclick="switchAdminTab('settings')" id="adminTabSettings" class="admin-tab flex-1 py-2.5 text-xs font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all whitespace-nowrap px-3">Settings</button>
+            </div>
+
+            <!-- Users Panel -->
+            <div id="adminPanelUsers">
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="adminUserSearch" oninput="searchAdminUsers()" placeholder="Search username, phone, code..." class="flex-1 bg-dark-850 border border-gold-500/20 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-gold-500/50 placeholder-gold-500/30">
+                </div>
+                <div id="adminUsersList" class="space-y-3 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">Loading users...</div>
+                </div>
+            </div>
+
+            <!-- Deposits Panel -->
+            <div id="adminPanelDeposits" class="hidden">
+                <div id="pendingDeposits" class="space-y-3 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">Loading deposits...</div>
+                </div>
+            </div>
+
+            <!-- Withdrawals Panel -->
+            <div id="adminPanelWithdrawals" class="hidden">
+                <div id="pendingWithdrawals" class="space-y-3 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">Loading withdrawals...</div>
+                </div>
+            </div>
+
+            <!-- Check-Ins Panel -->
+            <div id="adminPanelCheckins" class="hidden">
+                <div id="adminCheckinsList" class="space-y-3 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">Loading check-ins...</div>
+                </div>
+            </div>
+
+            <!-- Assistants Panel -->
+            <div id="adminPanelAssistants" class="hidden">
+                <div id="adminAssistantsList" class="space-y-3 max-h-[60vh] overflow-y-auto hide-scrollbar">
+                    <div class="text-center text-gold-500/30 py-6 text-xs">Loading applications...</div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div id="adminPanelSettings" class="hidden space-y-4">
+                <div class="text-[10px] font-bold tracking-[0.2em] text-gold-500/50 uppercase mb-2">Platform Settings</div>
+                <div class="space-y-3">
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Telegram Link</label>
+                        <input type="text" id="settingTelegram" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30" placeholder="https://t.me/...">
+                    </div>
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Company Description</label>
+                        <textarea id="settingCompany" rows="3" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30 resize-none" placeholder="Company description..."></textarea>
+                    </div>
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Deposit Bank Name</label>
+                        <input type="text" id="settingBankName" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                    </div>
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Deposit Account Number</label>
+                        <input type="text" id="settingAccNum" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                    </div>
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Deposit Account Name</label>
+                        <input type="text" id="settingAccName" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Withdrawal Fee (%)</label>
+                            <input type="number" id="settingWithdrawalFee" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Check-In Reward (%)</label>
+                            <input type="number" id="settingCheckin" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Ref A (%)</label>
+                            <input type="number" id="settingRefA" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Ref B (%)</label>
+                            <input type="number" id="settingRefB" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Ref C (%)</label>
+                            <input type="number" id="settingRefC" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Junior Reward (₦)</label>
+                            <input type="number" id="settingJunior" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Senior Reward (₦)</label>
+                            <input type="number" id="settingSenior" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Withdrawal Start (Hour)</label>
+                            <input type="number" id="settingStartHour" min="0" max="23" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                        <div class="glass-input rounded-xl px-4 py-3">
+                            <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Withdrawal End (Hour)</label>
+                            <input type="number" id="settingEndHour" min="0" max="23" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30">
+                        </div>
+                    </div>
+                    <div class="glass-input rounded-xl px-4 py-3">
+                        <label class="text-[10px] text-gold-500/50 uppercase font-bold block mb-1">Announcement Message</label>
+                        <input type="text" id="settingAnnouncement" class="bg-transparent w-full outline-none text-white text-sm placeholder-gold-500/30" placeholder="Display on home page...">
+                    </div>
+                </div>
+                <button onclick="saveAdminSettings()" class="gold-gradient-bg w-full h-12 rounded-full text-sm font-bold text-dark-950 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all active:scale-95">
+                    Save All Settings <i class="ph-bold ph-floppy-disk"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELEGRAM POPUP -->
+    <div id="telegramPopup" class="hidden fixed inset-0 z-[99500] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-dark-950/90 backdrop-blur-md" onclick="closeTelegramPopup()"></div>
+        <div class="relative z-10 w-full max-w-sm glass-panel rounded-3xl border border-gold-500/30 bg-gradient-to-b from-dark-850 to-dark-950 overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)]">
+            <div class="h-1 w-full gold-gradient-bg opacity-70"></div>
+            <div class="p-8 flex flex-col items-center text-center relative">
+                <button onclick="closeTelegramPopup()" class="absolute top-3 right-3 w-8 h-8 bg-dark-850 rounded-full flex items-center justify-center text-gold-500/50 hover:text-gold-400 transition border border-gold-500/10">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+                <div class="w-16 h-16 rounded-2xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-telegram-logo text-3xl text-gold-400"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-white tracking-tight font-display">Join Our Community</h3>
+                <p class="text-gold-500/50 text-sm leading-relaxed mb-6">
+                    Stay updated with market insights, community payouts, and platform announcements through our official Telegram channel.
+                </p>
+                <a id="telegramLinkBtn" href="https://t.me/EMXHubOfficial" target="_blank" rel="noopener noreferrer" onclick="closeTelegramPopup()" class="gold-gradient-bg w-full h-12 rounded-xl text-sm font-bold text-dark-950 flex items-center justify-center gap-2 mb-3 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                    <i class="ph-bold ph-telegram-logo"></i> Join Official Telegram
+                </a>
+                <button onclick="closeTelegramPopup()" class="text-xs text-gold-500/30 hover:text-gold-500/60 transition">Maybe later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav id="bottomNav" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[80px] bg-dark-950/90 backdrop-blur-xl border-t border-gold-500/10 z-[50] flex items-center justify-between px-2 pb-safe">
+        <button onclick="navBottom('homePage')" class="nav-btn flex-1 flex flex-col items-center gap-1 group active" data-target="homePage">
+            <i class="ph-fill ph-house text-2xl text-gold-500/30 group-[.active]:text-gold-400 transition-all duration-300"></i>
+            <span class="text-[10px] font-medium text-gold-500/30 group-[.active]:text-gold-400 transition-colors">Home</span>
+        </button>
+        <button onclick="navBottom('depositPage')" class="nav-btn flex-1 flex flex-col items-center gap-1 group" data-target="depositPage">
+            <i class="ph-fill ph-wallet text-2xl text-gold-500/30 group-[.active]:text-gold-400 transition-all duration-300"></i>
+            <span class="text-[10px] font-medium text-gold-500/30 group-[.active]:text-gold-400 transition-colors">Deposit</span>
+        </button>
+        <button onclick="navBottom('withdrawPage')" class="nav-btn flex-1 flex flex-col items-center gap-1 group" data-target="withdrawPage">
+            <i class="ph-fill ph-paper-plane-tilt text-2xl text-gold-500/30 group-[.active]:text-gold-400 transition-all duration-300"></i>
+            <span class="text-[10px] font-medium text-gold-500/30 group-[.active]:text-gold-400 transition-colors">Withdraw</span>
+        </button>
+        <button onclick="navBottom('historyPage')" class="nav-btn flex-1 flex flex-col items-center gap-1 group" data-target="historyPage">
+            <i class="ph-fill ph-receipt text-2xl text-gold-500/30 group-[.active]:text-gold-400 transition-all duration-300"></i>
+            <span class="text-[10px] font-medium text-gold-500/30 group-[.active]:text-gold-400 transition-colors">History</span>
+        </button>
+        <button onclick="navBottom('profilePage')" class="nav-btn flex-1 flex flex-col items-center gap-1 group" data-target="profilePage">
+            <i class="ph-fill ph-user text-2xl text-gold-500/30 group-[.active]:text-gold-400 transition-all duration-300"></i>
+            <span class="text-[10px] font-medium text-gold-500/30 group-[.active]:text-gold-400 transition-colors">Profile</span>
+        </button>
+    </nav>
+
+    <!-- TELEGRAM FLOAT BUTTON -->
+    <a id="telegramBtn" href="https://t.me/EMXHubOfficial" target="_blank" rel="noopener noreferrer" class="fixed bottom-24 right-5 w-[50px] h-[50px] gold-gradient-bg rounded-full flex items-center justify-center text-dark-950 text-2xl shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-grab z-[1000] hover:scale-110 transition-transform touch-none">
+        <i class="ph-fill ph-telegram-logo"></i>
+    </a>
+
+<script>
+// ========================
+// EMX HUB - CORE CONFIG
+// ========================
+const SUPABASE_URL = 'https://wepwkictsluowcdxhtiy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcHdraWN0c2x1b3djZHhodGl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNDUzMDcsImV4cCI6MjA5NzgyMTMwN30.zjZAy2x7ifhhSKBgNZYD3ZsRnT2Nlfb4gK5fG7ulAO8';
+
+/*
+  SUPABASE RPC FUNCTIONS REQUIRED:
+
+  Run these in your Supabase SQL Editor:
+
+  -- insert_history RPC
+  CREATE OR REPLACE FUNCTION insert_history(
+    p_user_id uuid, p_type text, p_amount numeric, p_description text, p_status text
+  ) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN INSERT INTO history (user_id, type, amount, description, status, created_at)
+    VALUES (p_user_id, p_type, p_amount, p_description, p_status, NOW()); END; $$;
+
+  -- insert_deposit RPC
+  CREATE OR REPLACE FUNCTION insert_deposit(
+    p_user_id uuid, p_amount numeric, p_stage_name text, p_receipt_data text DEFAULT NULL
+  ) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN INSERT INTO deposits (user_id, amount, stage_name, receipt_data, status, created_at)
+    VALUES (p_user_id, p_amount, p_stage_name, p_receipt_data, 'pending', NOW()); END; $$;
+
+  -- insert_withdrawal RPC
+  CREATE OR REPLACE FUNCTION insert_withdrawal(
+    p_user_id uuid, p_amount numeric, p_fee_amount numeric, p_net_amount numeric,
+    p_bank_name text, p_account_number text, p_account_name text
+  ) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN INSERT INTO withdrawals (user_id, amount, fee_amount, net_amount, bank_name, account_number, account_name, status, created_at)
+    VALUES (p_user_id, p_amount, p_fee_amount, p_net_amount, p_bank_name, p_account_number, p_account_name, 'pending', NOW()); END; $$;
+
+  -- insert_checkin RPC
+  CREATE OR REPLACE FUNCTION insert_checkin(
+    p_user_id uuid, p_amount numeric, p_checkin_date date
+  ) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN INSERT INTO check_ins (user_id, amount, checkin_date, created_at)
+    VALUES (p_user_id, p_amount, p_checkin_date, NOW()); END; $$;
+
+  -- get_admin_stats RPC
+  CREATE OR REPLACE FUNCTION get_admin_stats()
+  RETURNS TABLE(total_users bigint, active_users bigint, total_deposits numeric, total_withdrawals numeric, total_rewards numeric, pending_deposits bigint, pending_withdrawals bigint)
+  LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN RETURN QUERY
+    SELECT (SELECT COUNT(*) FROM profiles WHERE role='user')::bigint,
+           (SELECT COUNT(*) FROM profiles WHERE role='user' AND status='active')::bigint,
+           (SELECT COALESCE(SUM(amount),0) FROM deposits WHERE status='confirmed'),
+           (SELECT COALESCE(SUM(amount),0) FROM withdrawals WHERE status='confirmed'),
+           (SELECT COALESCE(SUM(amount),0) FROM history WHERE type IN ('checkin','referral','admin_credit','assistant_reward')),
+           (SELECT COUNT(*) FROM deposits WHERE status='pending')::bigint,
+           (SELECT COUNT(*) FROM withdrawals WHERE status='pending')::bigint;
+  END; $$;
+
+  -- login_user RPC
+  CREATE OR REPLACE FUNCTION login_user(p_username text, p_password text)
+  RETURNS SETOF profiles LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN RETURN QUERY SELECT * FROM profiles WHERE username=p_username AND password=p_password LIMIT 1; END; $$;
+
+  -- get_user_referral_stats RPC
+  CREATE OR REPLACE FUNCTION get_user_referral_stats(uid uuid)
+  RETURNS TABLE(level_a_count bigint, level_b_count bigint, level_c_count bigint)
+  LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN RETURN QUERY
+    SELECT (SELECT COUNT(*) FROM referrals WHERE referrer_id=uid AND level=1)::bigint,
+           (SELECT COUNT(*) FROM referrals WHERE referrer_id=uid AND level=2)::bigint,
+           (SELECT COUNT(*) FROM referrals WHERE referrer_id=uid AND level=3)::bigint;
+  END; $$;
+
+  SUPABASE SETUP REQUIRED:
+
+  All RPCs above must be created with SECURITY DEFINER.
+
+  RLS on all tables should allow anon/authenticated reads via the RPCs.
+  Alternatively, for simplicity during development, enable anon access on:
+  - profiles: SELECT, INSERT, UPDATE for anon
+  - deposits: SELECT, INSERT, UPDATE for anon
+  - withdrawals: SELECT, INSERT, UPDATE for anon
+  - history: SELECT, INSERT for anon
+  - check_ins: SELECT, INSERT for anon
+  - referrals: SELECT, INSERT, UPDATE for anon
+  - admin_settings: SELECT, UPDATE for anon
+  - assistant_applications: SELECT, INSERT, UPDATE for anon
+
+  All SECURITY DEFINER functions bypass RLS automatically.
+*/
+
+let supabase;
+function initSupabase() {
+    if (window.supabase && !supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return !!supabase;
+}
+// Attempt immediate init in case script already loaded
+initSupabase();
+
+const INVESTMENT_PLANS = [
+    { id: 's1a', stage: 'EMX Stage 1', name: 'Stage 1A', amount: 5500, dailyReward: 1100, locked: false },
+    { id: 's1b', stage: 'EMX Stage 1', name: 'Stage 1B', amount: 10500, dailyReward: 2100, locked: false },
+    { id: 's2a', stage: 'EMX Stage 2', name: 'Stage 2A', amount: 25000, dailyReward: 5000, locked: false },
+    { id: 's2b', stage: 'EMX Stage 2', name: 'Stage 2B', amount: 50000, dailyReward: 10000, locked: false },
+    { id: 's3a', stage: 'EMX Stage 3', name: 'Stage 3A', amount: 120000, dailyReward: 24000, locked: false },
+    { id: 's3b', stage: 'EMX Stage 3', name: 'Stage 3B', amount: 309000, dailyReward: 61800, locked: true },
+    { id: 's4', stage: 'EMX Stage 4', name: 'Stage 4', amount: 610000, dailyReward: 122000, locked: true },
+];
+
+let currentUser = null;
+let appSettings = null;
+let selectedPlan = null;
+let realtimeChannel = null;
+let telegramPopupShown = false;
+let currentHistoryFilter = 'all';
+let checkinTimerInterval = null;
+let stockChartInterval = null;
+
+function fmt(num) { return (Number(num) || 0).toLocaleString('en-NG'); }
+
+// ========================
+// TOAST & LOADER
+// ========================
+function showToast(msg) {
+    const old = document.getElementById('customToast');
+    if (old) old.remove();
+    const t = document.createElement('div');
+    t.id = 'customToast';
+    t.className = 'toast-animate fixed bottom-24 left-1/2 -translate-x-1/2 bg-dark-850 text-gold-400 px-5 py-3 rounded-full shadow-2xl border border-gold-500/20 z-[9999] text-sm font-medium whitespace-nowrap';
+    t.innerHTML = msg;
+    document.body.appendChild(t);
+    setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translate(-50%, 20px)';
+        t.style.transition = 'all 0.3s ease';
+        setTimeout(() => t.remove(), 300);
+    }, 3500);
+}
+
+function toggleLoader(show, text = 'Processing...') {
+    const loader = document.getElementById('loadingOverlay');
+    document.getElementById('loadingText').textContent = text;
+    if (show) { loader.classList.remove('hidden'); loader.classList.add('flex'); }
+    else { loader.classList.add('hidden'); loader.classList.remove('flex'); }
+}
+
+// ========================
+// INFO DROPDOWN
+// ========================
+function toggleInfoDropdown(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('open');
+}
+
+// ========================
+// NAVIGATION
+// ========================
+let _navLoadingActive = false;
+const NAV_MESSAGES = {
+    homePage: ['Loading Dashboard...', 'Syncing Data...', 'Preparing Home...'],
+    depositPage: ['Loading Deposit Hub...', 'Fetching Plans...', 'Preparing Investment...'],
+    withdrawPage: ['Loading Payout Center...', 'Checking Balance...', 'Preparing Withdrawal...'],
+    profilePage: ['Loading Profile...', 'Fetching Stats...', 'Preparing Account...'],
+    historyPage: ['Loading Records...', 'Fetching History...', 'Preparing Log...'],
+    adminPage: ['Entering Admin Portal...', 'Verifying Access...', 'Loading Controls...'],
+};
+const NAV_SUBTEXTS = ['Securing Connection', 'Encrypting Transfer', 'Authenticating Session', 'Syncing Engine'];
+
+function showNavLoader(targetPage, callback) {
+    if (_navLoadingActive) { callback(); return; }
+    _navLoadingActive = true;
+    const msgs = NAV_MESSAGES[targetPage] || ['Loading...'];
+    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+    const sub = NAV_SUBTEXTS[Math.floor(Math.random() * NAV_SUBTEXTS.length)];
+    const delay = 1800;
+
+    document.getElementById('navOverlayText').textContent = msg;
+    document.getElementById('navOverlaySubText').textContent = sub;
+    const bar = document.getElementById('navProgressBar');
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    void bar.offsetWidth;
+    bar.style.transition = `width ${delay}ms linear`;
+    bar.style.width = '100%';
+
+    const ov = document.getElementById('navOverlay');
+    ov.classList.remove('hidden'); ov.classList.add('flex');
+    setTimeout(() => {
+        ov.classList.add('hidden'); ov.classList.remove('flex');
+        _navLoadingActive = false;
+        callback();
+    }, delay);
+}
+
+const VIEWS = ['authPage', 'homePage', 'depositPage', 'withdrawPage', 'profilePage', 'historyPage', 'referralPage', 'adminPage'];
+
+function switchView(targetId) {
+    VIEWS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.toggle('hidden', id !== targetId); el.classList.toggle('flex', id === targetId); }
+    });
+    window.scrollTo(0, 0);
+    const nav = document.getElementById('bottomNav');
+    if (targetId === 'authPage' || targetId === 'adminPage') {
+        nav.classList.add('hidden');
+    } else {
+        nav.classList.remove('hidden');
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === targetId);
+        });
+    }
+}
+
+function navigateTo(page) {
+    if (!currentUser) return;
+    if (_navLoadingActive) return;
+    if (page === 'adminPage' && currentUser.role !== 'admin') {
+        return showToast('🔒 Admin access required');
+    }
+    if (page !== 'profilePage' && page !== 'homePage' && page !== 'adminPage' && page !== 'historyPage' && page !== 'referralPage' &&
+        (!currentUser.bank_name || !currentUser.account_number)) {
+        showToast('⚠️ Link bank details first');
+        showNavLoader('profilePage', () => switchView('profilePage'));
+        return;
+    }
+    showNavLoader(page, () => {
+        if (page === 'historyPage') loadHistory();
+        if (page === 'withdrawPage') prepareWithdrawalView();
+        if (page === 'adminPage') loadAdminData();
+        if (page === 'profilePage') prepareProfileView();
+        if (page === 'depositPage') prepareDepositView();
+        if (page === 'referralPage') loadReferralTracking();
+        switchView(page);
+    });
+}
+
+function goBackToHome() {
+    showNavLoader('homePage', () => {
+        switchView('homePage');
+        selectedPlan = null;
+        // Hide all deposit sections
+        const dd = document.getElementById('depositDetails');
+        const pb = document.getElementById('proceedPaymentBtn');
+        const pi = document.getElementById('paymentInstructionsSection');
+        if (dd) dd.classList.add('hidden');
+        if (pb) pb.classList.add('hidden');
+        if (pi) pi.classList.add('hidden');
+        // Clear plan selection styling
+        document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('border-gold-500', 'bg-gold-500/10'));
+    });
+}
+
+function navBottom(page) {
+    if (page === 'homePage') goBackToHome();
+    else navigateTo(page);
+}
+
+// ========================
+// AUTH
+// ========================
+function switchAuthTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+    document.getElementById('signupForm').classList.toggle('hidden', isLogin);
+    const btnL = document.getElementById('tab-login');
+    const btnS = document.getElementById('tab-signup');
+    if (isLogin) {
+        btnL.className = 'flex-1 py-3 text-sm font-bold rounded-full bg-dark-850 text-gold-400 shadow-md transition-all border border-gold-500/20';
+        btnS.className = 'flex-1 py-3 text-sm font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all';
+    } else {
+        btnS.className = 'flex-1 py-3 text-sm font-bold rounded-full bg-dark-850 text-gold-400 shadow-md transition-all border border-gold-500/20';
+        btnL.className = 'flex-1 py-3 text-sm font-bold rounded-full text-gold-500/50 hover:text-gold-400 transition-all';
+    }
+}
+
+async function handleLogin() {
+    if (!supabase) return showToast('System initializing...');
+    const username = document.getElementById('loginUsername').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+    if (!username || !pass) return showToast('Enter username and password');
+
+    toggleLoader(true, 'Authenticating...');
+    try {
+        const { data, error } = await supabase.rpc('login_user', { p_username: username, p_password: pass });
+        if (error || !data || data.length === 0) throw new Error('Invalid credentials');
+        const userData = data[0];
+        if (userData.status === 'banned') throw new Error('Account suspended. Contact support.');
+
+        currentUser = userData;
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('emx_remember', '1');
+        localStorage.setItem('emx_username', username);
+        localStorage.setItem('emx_password', pass);
+
+        initRealtime();
+        await loadAppSettings();
+        toggleLoader(false);
+        showToast('✅ Welcome to EMX Hub');
+        showHome();
+    } catch (err) {
+        toggleLoader(false);
+        showToast('❌ ' + err.message);
+    }
+}
+
+async function processSignup() {
+    if (!supabase) return showToast('System initializing...');
+    const username = document.getElementById('signupUsername').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const pass = document.getElementById('signupPassword').value.trim();
+    const region = document.getElementById('signupRegion').value;
+    const ref = document.getElementById('signupReferral').value.trim();
+
+    if (!username || !phone || !pass || !region) return showToast('All fields are required');
+    if (username.length < 3) return showToast('Username must be at least 3 characters');
+    if (pass.length < 4) return showToast('Password must be at least 4 characters');
+
+    toggleLoader(true, 'Creating Account...');
+    try {
+        const { data: existing } = await supabase.from('profiles').select('id').eq('username', username).maybeSingle();
+        if (existing) { toggleLoader(false); return showToast('❌ Username already taken'); }
+
+        const { data: existingPhone } = await supabase.from('profiles').select('id').eq('phone', phone).maybeSingle();
+        if (existingPhone) { toggleLoader(false); return showToast('❌ Phone number already registered'); }
+
+        const refCode = 'EMX' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        const { error } = await supabase.from('profiles').insert([{
+            username: username, phone: phone, password: pass, referral_code: refCode,
+            referred_by: ref || null, region: region, balance: 0, bonus_balance: 0,
+            total_income: 0, locked_capital: 0, total_deposits: 0, total_withdrawals: 0,
+            total_referral_earnings: 0, total_checkin_earnings: 0, role: 'user', status: 'active'
+        }]);
+
+        if (error) throw error;
+        showToast('✅ Account created! Please login.');
+        document.getElementById('loginUsername').value = username;
+        switchAuthTab('login');
+    } catch (err) {
+        let msg = err.message || 'Registration failed';
+        if (msg.includes('duplicate key') && msg.includes('username')) msg = 'Username already taken.';
+        else if (msg.includes('duplicate key') && msg.includes('phone')) msg = 'Phone number already registered.';
+        showToast('❌ ' + msg);
+    }
+    toggleLoader(false);
+}
+
+function handleLogout() {
+    stopRealtime();
+    currentUser = null;
+    appSettings = null;
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('emx_remember');
+    document.getElementById('bottomNav').classList.add('hidden');
+    if (checkinTimerInterval) clearInterval(checkinTimerInterval);
+    if (stockChartInterval) clearInterval(stockChartInterval);
+    switchView('authPage');
+    showToast('Logged out securely');
+}
+
+// ========================
+// REALTIME
+// ========================
+function initRealtime() {
+    if (!supabase || !currentUser) return;
+    if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+    realtimeChannel = supabase.channel(`user-sync-${currentUser.id}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` },
+            async (payload) => {
+                if (payload.new) {
+                    currentUser = payload.new;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    await refreshUserData();
+                }
+            })
+        .subscribe();
+}
+
+function stopRealtime() {
+    if (realtimeChannel) { supabase.removeChannel(realtimeChannel); realtimeChannel = null; }
+}
+
+// ========================
+// APP SETTINGS
+// ========================
+async function loadAppSettings() {
+    if (!supabase) { console.warn('Supabase not available for loadAppSettings'); return; }
+    try {
+        const { data, error } = await supabase.from('admin_settings').select('*').eq('id', 1).single();
+        if (error) {
+            console.error('loadAppSettings Supabase error:', error);
+            // Continue with defaults - don't break the UI
+            appSettings = appSettings || {};
+            return;
+        }
+        appSettings = data;
+        if (data.company_description) document.getElementById('companyDescription').textContent = data.company_description;
+        if (data.announcement) {
+            document.getElementById('announcementBanner').classList.remove('hidden');
+            document.getElementById('announcementText').textContent = data.announcement;
+        } else {
+            document.getElementById('announcementBanner').classList.add('hidden');
+        }
+        if (data.telegram_link) {
+            document.getElementById('telegramLinkBtn').href = data.telegram_link;
+            document.getElementById('telegramBtn').href = data.telegram_link;
+        }
+        // Also update payment instructions if visible
+        const payBank = document.getElementById('payBankName');
+        const payAcc = document.getElementById('payAccNum');
+        const payName = document.getElementById('payAccName');
+        if (payBank) payBank.textContent = data.deposit_bank_name || '—';
+        if (payAcc) payAcc.textContent = data.deposit_account_number || '—';
+        if (payName) payName.textContent = data.deposit_account_name || '—';
+    } catch (e) {
+        console.error('loadAppSettings error:', e);
+        // Continue with defaults - don't break the UI
+        appSettings = appSettings || {};
+    }
+}
+
+// ========================
+// HOME & CHECK-IN
+// ========================
+async function showHome() {
+    switchView('homePage');
+    if (currentUser && currentUser.role === 'admin') {
+        document.getElementById('adminLaunchBtn').classList.remove('hidden');
+        document.getElementById('adminLaunchBtn').classList.add('flex');
+    } else {
+        document.getElementById('adminLaunchBtn').classList.add('hidden');
+        document.getElementById('adminLaunchBtn').classList.remove('flex');
+    }
+    await refreshUserData();
+    renderHomePlans();
+    startCheckInTimer();
+    setTimeout(() => { initStockChart(); animateStockChart(); }, 300);
+    if (!telegramPopupShown) { telegramPopupShown = true; setTimeout(() => { document.getElementById('telegramPopup').classList.remove('hidden'); }, 1500); }
+}
+
+function renderHomePlans() {
+    const grid = document.getElementById('homePlansGrid');
+    grid.innerHTML = INVESTMENT_PLANS.map(plan => {
+        if (plan.locked) {
+            return `<div class="glass-panel rounded-2xl p-4 text-center relative opacity-50 border-gold-500/10">
+                <div class="absolute top-2 right-2"><i class="ph-fill ph-lock-key text-gold-500/50 text-lg"></i></div>
+                <div class="text-lg font-black text-white/50 leading-tight">₦${fmt(plan.amount)}</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/30 mb-1">${plan.stage}</div>
+                <div class="text-xs font-bold text-gold-500/30">+₦${fmt(plan.dailyReward)}/day</div>
+                <div class="text-[10px] text-red-400/60 mt-1 font-bold">COMING SOON</div>
+            </div>`;
+        }
+        return `<div onclick="navigateTo('depositPage')" class="glass-panel rounded-2xl p-4 text-center cursor-pointer transition gold-border-hover active:scale-95">
+            <div class="text-lg font-black text-white leading-tight">₦${fmt(plan.amount)}</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/50 mb-1">${plan.stage}</div>
+            <div class="text-xs font-bold text-gold-400">+₦${fmt(plan.dailyReward)}/day</div>
+        </div>`;
+    }).join('');
+}
+
+function startCheckInTimer() {
+    if (checkinTimerInterval) clearInterval(checkinTimerInterval);
+    const btn = document.getElementById('checkinBtn');
+    const label = document.getElementById('checkinLabel');
+    const timer = document.getElementById('checkinTimer');
+    const reward = document.getElementById('checkinReward');
+
+    if (!currentUser || !currentUser.last_checkin_at) {
+        btn.classList.remove('opacity-50', 'pointer-events-none');
+        btn.classList.add('animate-pulse-gold');
+        label.textContent = 'CHECK IN';
+        timer.textContent = 'Ready to claim';
+        reward.classList.add('hidden');
+        return;
+    }
+
+    const lastCheckin = new Date(currentUser.last_checkin_at);
+    const now = new Date();
+    const lastDate = new Date(lastCheckin.getFullYear(), lastCheckin.getMonth(), lastCheckin.getDate());
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (lastDate >= nowDate) {
+        btn.classList.add('opacity-50', 'pointer-events-none');
+        btn.classList.remove('animate-pulse-gold');
+        label.textContent = 'CHECKED IN';
+        reward.classList.remove('hidden');
+        const locked = parseFloat(currentUser.locked_capital || 0);
+        const pct = appSettings ? parseFloat(appSettings.checkin_percent || 20) : 20;
+        reward.textContent = `+₦${fmt(locked * (pct / 100))} earned today`;
+
+        const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        function update() {
+            const remaining = midnight - new Date();
+            if (remaining <= 0) {
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+                btn.classList.add('animate-pulse-gold');
+                label.textContent = 'CHECK IN';
+                timer.textContent = 'Ready to claim';
+                reward.classList.add('hidden');
+                clearInterval(checkinTimerInterval);
+                return;
+            }
+            const h = Math.floor(remaining / 3600000);
+            const m = Math.floor((remaining % 3600000) / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            timer.textContent = `Next in ${h}h ${m}m ${s}s`;
+        }
+        update();
+        checkinTimerInterval = setInterval(update, 1000);
+    } else {
+        btn.classList.remove('opacity-50', 'pointer-events-none');
+        btn.classList.add('animate-pulse-gold');
+        label.textContent = 'CHECK IN';
+        timer.textContent = 'Ready to claim';
+        reward.classList.add('hidden');
+    }
+}
+
+async function handleCheckIn() {
+    if (!currentUser || !supabase) return;
+    const btn = document.getElementById('checkinBtn');
+    if (btn.classList.contains('opacity-50')) return;
+
+    const lockedCapital = parseFloat(currentUser.locked_capital || 0);
+    if (lockedCapital <= 0) { showToast('No active investment. Make a deposit first.'); return; }
+
+    const today = new Date().toLocaleDateString('sv-SE');
+
+    toggleLoader(true, 'Processing Check-In...');
+    try {
+        const { data: existing, error: checkErr } = await supabase.from('check_ins')
+            .select('id').eq('user_id', currentUser.id).eq('checkin_date', today).maybeSingle();
+        if (existing) { toggleLoader(false); showToast('Already checked in today'); startCheckInTimer(); return; }
+
+        const pct = appSettings ? parseFloat(appSettings.checkin_percent || 20) : 20;
+        const reward = lockedCapital * (pct / 100);
+
+        const newBalance = parseFloat(currentUser.balance || 0) + reward;
+        const newCheckinEarnings = parseFloat(currentUser.total_checkin_earnings || 0) + reward;
+        const newTotalIncome = parseFloat(currentUser.total_income || 0) + reward;
+
+        // Use RPC for check-in insert
+        const { error: insertErr } = await supabase.rpc('insert_checkin', {
+            p_user_id: currentUser.id,
+            p_amount: reward,
+            p_checkin_date: today
+        });
+        if (insertErr) throw insertErr;
+
+        // Update profile
+        const { error: updErr } = await supabase.from('profiles').update({
+            balance: newBalance, total_checkin_earnings: newCheckinEarnings,
+            total_income: newTotalIncome, last_checkin_at: new Date().toISOString()
+        }).eq('id', currentUser.id);
+        if (updErr) throw updErr;
+
+        // Log transaction via RPC (wrapped so it doesn't break the main flow)
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: currentUser.id, p_type: 'checkin', p_amount: reward,
+                p_description: `Daily Check-In Reward — ₦${fmt(reward)} (${pct}% of locked capital)`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for checkin:', histErr);
+        }
+
+        await distributeReferralCommissions(currentUser.id, reward);
+
+        const { data: fresh } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (fresh) { currentUser = fresh; localStorage.setItem('currentUser', JSON.stringify(fresh)); }
+
+        toggleLoader(false);
+        showToast(`✅ Check-In Complete! +₦${fmt(reward)}`);
+        await refreshUserData();
+        startCheckInTimer();
+    } catch (e) {
+        toggleLoader(false);
+        showToast('❌ ' + (e.message || 'Check-in failed'));
+    }
+}
+
+async function distributeReferralCommissions(userId, checkinAmount) {
+    if (!appSettings || !supabase) return;
+    try {
+        const { data: user } = await supabase.from('profiles').select('referred_by').eq('id', userId).single();
+        if (!user || !user.referred_by) return;
+
+        let currentRefCode = user.referred_by;
+        let level = 1;
+        const percents = [
+            parseFloat(appSettings.referral_level_a_percent || 20),
+            parseFloat(appSettings.referral_level_b_percent || 5),
+            parseFloat(appSettings.referral_level_c_percent || 2)
+        ];
+
+        while (currentRefCode && level <= 3) {
+            const { data: referrer } = await supabase.from('profiles').select('*').eq('referral_code', currentRefCode).single();
+            if (!referrer) break;
+
+            const percent = percents[level - 1] || 0;
+            const commission = checkinAmount * (percent / 100);
+
+            if (commission > 0) {
+                const newBal = parseFloat(referrer.balance || 0) + commission;
+                const newRefEarnings = parseFloat(referrer.total_referral_earnings || 0) + commission;
+                const newTotalIncome = parseFloat(referrer.total_income || 0) + commission;
+
+                await supabase.from('profiles').update({
+                    balance: newBal, total_referral_earnings: newRefEarnings, total_income: newTotalIncome
+                }).eq('id', referrer.id);
+
+                try {
+                    await supabase.rpc('insert_history', {
+                        p_user_id: referrer.id, p_type: 'referral', p_amount: commission,
+                        p_description: `Referral Commission (Level ${level}) — ₦${fmt(commission)} from network`,
+                        p_status: 'confirmed'
+                    });
+                } catch (histErr) {
+                    console.error('History logging failed for referral:', histErr);
+                }
+
+                await supabase.from('referrals').upsert({
+                    referrer_id: referrer.id, referred_id: userId, level: level, commission_amount: commission
+                }, { onConflict: 'referrer_id,referred_id' });
+            }
+
+            const { data: nextUser } = await supabase.from('profiles').select('referred_by').eq('id', referrer.id).single();
+            currentRefCode = nextUser ? nextUser.referred_by : null;
+            level++;
+        }
+    } catch (e) { console.error('Referral distribution error:', e); }
+}
+
+// ========================
+// STOCK CHART
+// ========================
+function initStockChart() {
+    const container = document.getElementById('stockChart');
+    if (!container) return;
+    const existing = container.querySelectorAll('.stock-candle, .stock-wick');
+    existing.forEach(el => el.remove());
+    const containerWidth = container.offsetWidth || 300;
+    const candleWidth = 10;
+    const gap = 6;
+    const maxCandles = Math.floor(containerWidth / (candleWidth + gap));
+
+    for (let i = 0; i < maxCandles; i++) {
+        const isGreen = Math.random() > 0.45;
+        const change = Math.random() * 30 + 10;
+        const height = Math.max(15, Math.min(80, change));
+        const wickHeight = Math.random() * 15 + 5;
+        const candle = document.createElement('div');
+        candle.className = `stock-candle ${isGreen ? 'green' : 'red'}`;
+        candle.style.left = `${i * (candleWidth + gap) + gap}px`;
+        candle.style.height = `${height}%`;
+        candle.style.width = `${candleWidth}px`;
+        candle.style.bottom = `${Math.random() * 20 + 5}%`;
+        candle.style.animationDelay = `${i * 0.1}s`;
+        const wick = document.createElement('div');
+        wick.className = `stock-wick ${isGreen ? 'green' : 'red'}`;
+        wick.style.left = `${i * (candleWidth + gap) + gap + candleWidth/2 - 1}px`;
+        wick.style.height = `${wickHeight}px`;
+        wick.style.bottom = `${parseFloat(candle.style.bottom) + height * 0.1}%`;
+        container.appendChild(candle);
+        container.appendChild(wick);
+    }
+}
+
+function animateStockChart() {
+    if (stockChartInterval) clearInterval(stockChartInterval);
+    stockChartInterval = setInterval(() => {
+        const container = document.getElementById('stockChart');
+        if (!container || document.getElementById('homePage').classList.contains('hidden')) return;
+        const candles = container.querySelectorAll('.stock-candle');
+        if (candles.length === 0) return;
+        const numToUpdate = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < numToUpdate; i++) {
+            const idx = Math.floor(Math.random() * candles.length);
+            const candle = candles[idx];
+            const isGreen = Math.random() > 0.45;
+            const newHeight = Math.max(15, Math.min(80, Math.random() * 30 + 10));
+            candle.className = `stock-candle ${isGreen ? 'green' : 'red'}`;
+            candle.style.height = `${newHeight}%`;
+            candle.style.bottom = `${Math.random() * 20 + 5}%`;
+        }
+    }, 2000);
+}
+
+// ========================
+// DEPOSIT
+// ========================
+async function prepareDepositView() {
+    // Get user's deposit history to enforce tier rules
+    let userDeposits = [];
+    let highestTierAmount = 0;
+    if (currentUser && supabase) {
+        try {
+            const { data, error } = await supabase.from('deposits')
+                .select('amount, status, stage_name')
+                .eq('user_id', currentUser.id)
+                .order('amount', { ascending: false });
+            if (!error && data) {
+                userDeposits = data;
+                // Find highest approved deposit amount
+                const approved = data.filter(d => d.status === 'confirmed');
+                if (approved.length > 0) {
+                    highestTierAmount = Math.max(...approved.map(d => Number(d.amount)));
+                }
+            }
+        } catch (e) { console.error('Error loading user deposits:', e); }
+    }
+
+    const grid = document.getElementById('depositPlanGrid');
+    grid.innerHTML = INVESTMENT_PLANS.map(plan => {
+        // Check if tier is locked globally
+        if (plan.locked) {
+            return `<div class="plan-card glass-panel rounded-2xl p-4 text-center relative opacity-50 border-gold-500/10 cursor-not-allowed">
+                <div class="absolute top-2 right-2"><i class="ph-fill ph-lock-key text-gold-500/50 text-lg"></i></div>
+                <div class="text-lg font-black text-white/50 leading-tight">₦${fmt(plan.amount)}</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/30 mb-1">${plan.stage}</div>
+                <div class="text-xs font-bold text-gold-500/30 bg-gold-500/5 inline-block px-2 py-1 rounded">+₦${fmt(plan.dailyReward)}/day</div>
+                <div class="text-[10px] text-gold-500/40 mt-1">${plan.name}</div>
+                <div class="text-[10px] text-red-400/60 mt-1 font-bold">COMING SOON</div>
+            </div>`;
+        }
+
+        // Check if user already has this tier (pending or confirmed)
+        const hasThisTier = userDeposits.some(d => d.amount == plan.amount && (d.status === 'pending' || d.status === 'confirmed'));
+        if (hasThisTier) {
+            return `<div class="plan-card glass-panel rounded-2xl p-4 text-center relative opacity-40 border-gold-500/10 cursor-not-allowed">
+                <div class="absolute top-2 right-2"><i class="ph-fill ph-check-circle text-gold-500/30 text-lg"></i></div>
+                <div class="text-lg font-black text-white/40 leading-tight">₦${fmt(plan.amount)}</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/30 mb-1">${plan.stage}</div>
+                <div class="text-xs font-bold text-gold-500/30 bg-gold-500/5 inline-block px-2 py-1 rounded">+₦${fmt(plan.dailyReward)}/day</div>
+                <div class="text-[10px] text-gold-500/30 mt-1">${plan.name}</div>
+                <div class="text-[10px] text-gold-400/40 mt-1 font-bold">OWNED</div>
+            </div>`;
+        }
+
+        // Check if this tier is lower than highest owned tier (can't go backwards)
+        if (plan.amount < highestTierAmount) {
+            return `<div class="plan-card glass-panel rounded-2xl p-4 text-center relative opacity-40 border-gold-500/10 cursor-not-allowed">
+                <div class="absolute top-2 right-2"><i class="ph-fill ph-arrow-down text-gold-500/30 text-lg"></i></div>
+                <div class="text-lg font-black text-white/40 leading-tight">₦${fmt(plan.amount)}</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/30 mb-1">${plan.stage}</div>
+                <div class="text-xs font-bold text-gold-500/30 bg-gold-500/5 inline-block px-2 py-1 rounded">+₦${fmt(plan.dailyReward)}/day</div>
+                <div class="text-[10px] text-gold-500/30 mt-1">${plan.name}</div>
+                <div class="text-[10px] text-red-400/40 mt-1 font-bold">UNAVAILABLE</div>
+            </div>`;
+        }
+
+        return `<div onclick="selectPlan('${plan.id}')" id="plan-${plan.id}" class="plan-card glass-panel rounded-2xl p-4 text-center cursor-pointer transition gold-border-hover active:scale-95 border-gold-500/10">
+            <div class="text-lg font-black text-white leading-tight">₦${fmt(plan.amount)}</div>
+            <div class="text-[10px] font-bold uppercase tracking-widest text-gold-500/50 mb-1">${plan.stage}</div>
+            <div class="text-xs font-bold text-gold-400 bg-gold-500/10 inline-block px-2 py-1 rounded">+₦${fmt(plan.dailyReward)}/day</div>
+            <div class="text-[10px] text-gold-500/40 mt-1">${plan.name}</div>
+        </div>`;
+    }).join('');
+    // Reset state
+    selectedPlan = null;
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('border-gold-500', 'bg-gold-500/10'));
+    const dd = document.getElementById('depositDetails');
+    const pb = document.getElementById('proceedPaymentBtn');
+    const pi = document.getElementById('paymentInstructionsSection');
+    if (dd) dd.classList.add('hidden');
+    if (pb) pb.classList.add('hidden');
+    if (pi) pi.classList.add('hidden');
+    loadDepositHistory();
+}
+
+function selectPlan(planId) {
+    const plan = INVESTMENT_PLANS.find(p => p.id === planId);
+    if (!plan) return;
+    selectedPlan = plan;
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('border-gold-500', 'bg-gold-500/10'));
+    document.getElementById(`plan-${planId}`).classList.add('border-gold-500', 'bg-gold-500/10');
+    document.getElementById('depositDetails').classList.remove('hidden');
+    document.getElementById('selectedStage').textContent = plan.stage;
+    document.getElementById('selectedAmount').textContent = `₦${fmt(plan.amount)}`;
+    document.getElementById('selectedName').textContent = plan.name;
+    document.getElementById('selectedDaily').textContent = `+₦${fmt(plan.dailyReward)}`;
+
+    // Show proceed to payment button, hide everything else
+    document.getElementById('proceedPaymentBtn').classList.remove('hidden');
+    document.getElementById('paymentInstructionsSection').classList.add('hidden');
+}
+
+function showPaymentInstructions() {
+    if (!selectedPlan) return showToast('Select a plan first');
+
+    // Show loading overlay for 2.5 seconds
+    toggleLoader(true, 'Preparing Payment...');
+    setTimeout(() => {
+        toggleLoader(false);
+        _showPaymentDetails();
+    }, 2500);
+}
+
+function _showPaymentDetails() {
+    // Populate payment details
+    document.getElementById('paymentPlanName').textContent = selectedPlan.name + ' — ₦' + fmt(selectedPlan.amount);
+    document.getElementById('paymentPlanAmount').textContent = '₦' + fmt(selectedPlan.amount);
+    document.getElementById('payBankName').textContent = appSettings ? (appSettings.deposit_bank_name || '—') : '—';
+    document.getElementById('payAccNum').textContent = appSettings ? (appSettings.deposit_account_number || '—') : '—';
+    document.getElementById('payAccName').textContent = appSettings ? (appSettings.deposit_account_name || '—') : '—';
+    document.getElementById('paymentReminderText').textContent = `Send exactly ₦${fmt(selectedPlan.amount)} to the account above, then tap Confirm Payment below.`;
+    // Show payment instructions, hide plan grid and details
+    document.getElementById('depositPlanGrid').classList.add('hidden');
+    document.getElementById('depositDetails').classList.add('hidden');
+    document.getElementById('proceedPaymentBtn').classList.add('hidden');
+    document.getElementById('paymentInstructionsSection').classList.remove('hidden');
+}
+
+function backToPlanSelection() {
+    // Hide payment instructions, show plan grid
+    document.getElementById('paymentInstructionsSection').classList.add('hidden');
+    document.getElementById('depositPlanGrid').classList.remove('hidden');
+    document.getElementById('depositDetails').classList.remove('hidden');
+    document.getElementById('proceedPaymentBtn').classList.remove('hidden');
+}
+
+async function confirmPayment() {
+    if (!selectedPlan) return showToast('Select a plan first');
+    if (!supabase) return showToast('Connection error. Refresh and try again.');
+    if (!currentUser.bank_name || !currentUser.account_number) {
+        return showToast('Link bank details in Profile first');
+    }
+
+    toggleLoader(true, 'Submitting...');
+    try {
+        // Use RPC to insert deposit (bypasses RLS)
+        const { error } = await supabase.rpc('insert_deposit', {
+            p_user_id: currentUser.id,
+            p_amount: selectedPlan.amount,
+            p_stage_name: selectedPlan.name,
+            p_receipt_data: null
+        });
+        if (error) throw error;
+
+        // Log to history via RPC (wrapped in separate try/catch so it doesn't break the main flow)
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: currentUser.id,
+                p_type: 'deposit',
+                p_amount: selectedPlan.amount,
+                p_description: `Deposit Request — ₦${fmt(selectedPlan.amount)} (${selectedPlan.name})`,
+                p_status: 'pending'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for deposit:', histErr);
+        }
+
+        selectedPlan = null;
+        document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('border-gold-500', 'bg-gold-500/10'));
+        document.getElementById('depositDetails').classList.add('hidden');
+        document.getElementById('paymentInstructionsSection').classList.add('hidden');
+        document.getElementById('depositPlanGrid').classList.remove('hidden');
+
+        toggleLoader(false);
+        showToast('✅ Deposit submitted! Awaiting confirmation.');
+        loadDepositHistory();
+    } catch (e) {
+        toggleLoader(false);
+        showToast('❌ ' + (e.message || 'Submission failed'));
+    }
+}
+
+async function loadDepositHistory() {
+    const list = document.getElementById('depositHistoryList');
+    if (!currentUser) return;
+    try {
+        const { data, error } = await supabase.from('deposits').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No deposits yet</div>';
+            return;
+        }
+        list.innerHTML = data.map(d => {
+            const statusColor = d.status === 'confirmed' ? 'text-gold-400' : d.status === 'declined' ? 'text-red-400' : 'text-gold-500/50';
+            const statusIcon = d.status === 'confirmed' ? 'ph-check-circle' : d.status === 'declined' ? 'ph-x-circle' : 'ph-hourglass';
+            return `
+            <div class="glass-panel rounded-xl p-3 flex items-center justify-between border-gold-500/10">
+                <div class="flex items-center gap-3">
+                    <i class="ph-fill ${statusIcon} ${statusColor} text-xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">₦${fmt(d.amount)}</div>
+                        <div class="text-[10px] text-gold-500/40">${d.stage_name || 'Deposit'}</div>
+                    </div>
+                </div>
+                <div class="text-[10px] font-bold ${statusColor} uppercase">${d.status}</div>
+            </div>`;
+        }).join('');
+    } catch (e) { list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load</div>'; }
+}
+
+// ========================
+// WITHDRAWAL
+// ========================
+function prepareWithdrawalView() {
+    const status = getWithdrawalStatus();
+    const banner = document.getElementById('withdrawTimeBanner');
+    const title = document.getElementById('withdrawTimeTitle');
+    const desc = document.getElementById('withdrawTimeDesc');
+    const btn = document.getElementById('withdrawSubmitBtn');
+
+    if (status.open) {
+        banner.classList.remove('border-red-500/20');
+        banner.classList.add('border-gold-500/20');
+        title.textContent = 'Withdrawals Open';
+        title.className = 'text-sm font-bold text-gold-400';
+        desc.textContent = `${status.start}:00 — ${status.end}:00 daily`;
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+        banner.classList.remove('border-gold-500/20');
+        banner.classList.add('border-red-500/20');
+        title.textContent = 'Withdrawals Closed';
+        title.className = 'text-sm font-bold text-red-400';
+        desc.textContent = `Open ${status.start}:00 — ${status.end}:00 daily`;
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'pointer-events-none');
+    }
+
+    document.getElementById('wBankName').textContent = currentUser.bank_name || 'Not Set';
+    document.getElementById('wAccNumber').textContent = currentUser.account_number || '—';
+    document.getElementById('wAccName').textContent = currentUser.account_name || '—';
+    loadWithdrawHistory();
+}
+
+function getWithdrawalStatus() {
+    if (!appSettings) return { open: false, start: 9, end: 17 };
+    const now = new Date();
+    const hour = now.getHours();
+    const start = parseInt(appSettings.withdrawal_start_hour || 9);
+    const end = parseInt(appSettings.withdrawal_end_hour || 17);
+    return { open: hour >= start && hour < end, start, end };
+}
+
+function updateWithdrawFee() {
+    const val = parseFloat(document.getElementById('withdrawAmount').value);
+    const feeBox = document.getElementById('withdrawFeeSummary');
+    if (!val || val <= 0) { feeBox.classList.add('hidden'); return; }
+    const feePct = appSettings ? parseFloat(appSettings.withdrawal_fee_percent || 15) : 15;
+    const fee = val * (feePct / 100);
+    const net = val - fee;
+    feeBox.classList.remove('hidden');
+    feeBox.innerHTML = `<strong>Fee (${feePct}%):</strong> ₦${fmt(fee)} | <strong>Net Payout:</strong> <span class="text-white font-bold">₦${fmt(net)}</span>`;
+}
+
+async function requestWithdrawal() {
+    if (!supabase) return showToast('Connection error. Refresh and try again.');
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (!amount || amount <= 0) return showToast('Enter a valid amount');
+
+    const status = getWithdrawalStatus();
+    if (!status.open) return showToast('🚫 Withdrawals are closed. Open ' + status.start + ':00 — ' + status.end + ':00');
+
+    const feePct = appSettings ? parseFloat(appSettings.withdrawal_fee_percent || 15) : 15;
+    const fee = amount * (feePct / 100);
+    const net = amount - fee;
+
+    if (amount > parseFloat(currentUser.balance || 0)) return showToast('Insufficient balance');
+    if (!currentUser.bank_name || !currentUser.account_number) return showToast('⚠️ Link bank details first');
+
+    toggleLoader(true, 'Submitting Request...');
+    try {
+        const newBal = parseFloat(currentUser.balance || 0) - amount;
+        const newTotalWd = parseFloat(currentUser.total_withdrawals || 0) + amount;
+
+        await supabase.from('profiles').update({ balance: newBal, total_withdrawals: newTotalWd }).eq('id', currentUser.id);
+
+        // Use RPC for withdrawal insert
+        await supabase.rpc('insert_withdrawal', {
+            p_user_id: currentUser.id,
+            p_amount: amount,
+            p_fee_amount: fee,
+            p_net_amount: net,
+            p_bank_name: currentUser.bank_name,
+            p_account_number: currentUser.account_number,
+            p_account_name: currentUser.account_name
+        });
+
+        // Log to history via RPC (wrapped so it doesn't break the main flow)
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: currentUser.id,
+                p_type: 'withdrawal',
+                p_amount: amount,
+                p_description: `Withdrawal Request — ₦${fmt(amount)} (Fee: ₦${fmt(fee)}, Net: ₦${fmt(net)})`,
+                p_status: 'pending'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for withdrawal:', histErr);
+        }
+
+        currentUser.balance = newBal;
+        currentUser.total_withdrawals = newTotalWd;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        await refreshUserData();
+
+        toggleLoader(false);
+        showToast('✅ Withdrawal request submitted');
+        document.getElementById('withdrawAmount').value = '';
+        document.getElementById('withdrawFeeSummary').classList.add('hidden');
+        loadWithdrawHistory();
+    } catch (e) {
+        toggleLoader(false);
+        showToast('❌ ' + (e.message || 'Request failed'));
+    }
+}
+
+async function loadWithdrawHistory() {
+    const list = document.getElementById('withdrawHistoryList');
+    if (!currentUser) return;
+    try {
+        const { data, error } = await supabase.from('withdrawals').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(10);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No withdrawals yet</div>';
+            return;
+        }
+        list.innerHTML = data.map(w => {
+            const statusColor = w.status === 'confirmed' ? 'text-gold-400' : w.status === 'declined' ? 'text-red-400' : 'text-gold-500/50';
+            const statusIcon = w.status === 'confirmed' ? 'ph-check-circle' : w.status === 'declined' ? 'ph-x-circle' : 'ph-hourglass';
+            return `
+            <div class="glass-panel rounded-xl p-3 flex items-center justify-between border-gold-500/10">
+                <div class="flex items-center gap-3">
+                    <i class="ph-fill ${statusIcon} ${statusColor} text-xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">₦${fmt(w.amount)}</div>
+                        <div class="text-[10px] text-gold-500/40">Net: ₦${fmt(w.net_amount)}</div>
+                    </div>
+                </div>
+                <div class="text-[10px] font-bold ${statusColor} uppercase">${w.status}</div>
+            </div>`;
+        }).join('');
+    } catch (e) { list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load</div>'; }
+}
+
+// ========================
+// PROFILE
+// ========================
+async function prepareProfileView() {
+    if (!currentUser) return;
+    document.getElementById('profileUsername').textContent = currentUser.username || '—';
+    document.getElementById('profilePhone').textContent = currentUser.phone || '—';
+    document.getElementById('profileReferralCode').textContent = currentUser.referral_code || 'N/A';
+    document.getElementById('profileBalance').textContent = `₦${fmt(currentUser.balance)}`;
+    document.getElementById('profileTotalDeposits').textContent = `₦${fmt(currentUser.total_deposits)}`;
+    document.getElementById('profileTotalWithdrawals').textContent = `₦${fmt(currentUser.total_withdrawals)}`;
+    document.getElementById('profileTotalIncome').textContent = `₦${fmt(currentUser.total_income)}`;
+    document.getElementById('profileCheckinEarnings').textContent = `₦${fmt(currentUser.total_checkin_earnings)}`;
+    document.getElementById('profileReferralEarnings').textContent = `₦${fmt(currentUser.total_referral_earnings)}`;
+    document.getElementById('profileLockedCapital').textContent = `₦${fmt(currentUser.locked_capital)}`;
+    document.getElementById('profileRegDate').textContent = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : '—';
+
+    document.getElementById('profileFullName').value = currentUser.full_name || '';
+    document.getElementById('profileRegion').value = currentUser.region || '';
+
+    await loadReferralStats();
+}
+
+async function loadReferralStats() {
+    if (!currentUser) return;
+    try {
+        const { data, error } = await supabase.rpc('get_user_referral_stats', { uid: currentUser.id });
+        if (error) throw error;
+        if (data && data.length > 0) {
+            const s = data[0];
+            document.getElementById('refLevelA').textContent = s.level_a_count || 0;
+            document.getElementById('refLevelB').textContent = s.level_b_count || 0;
+            document.getElementById('refLevelC').textContent = s.level_c_count || 0;
+        }
+    } catch (e) { console.error('Referral stats error:', e); }
+}
+
+async function loadReferralTracking() {
+    if (!currentUser || !supabase) return;
+    document.getElementById('trackReferralCode').textContent = currentUser.referral_code || 'N/A';
+
+    // Reset all counters
+    const tiers = ['s1a', 's1b', 's2a', 's2b', 's3a', 's3b', 's4a'];
+    tiers.forEach(t => {
+        const el = document.getElementById('trackS' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (el) el.textContent = '0';
+    });
+
+    try {
+        // Get all referrals (level 1 = direct referrals)
+        const { data: referrals, error: refError } = await supabase
+            .from('referrals')
+            .select('referred_id')
+            .eq('referrer_id', currentUser.id)
+            .eq('level', 1);
+
+        if (refError || !referrals || referrals.length === 0) return;
+
+        const referredIds = referrals.map(r => r.referred_id);
+
+        // Get confirmed deposits for all referred users
+        const { data: deposits, error: depError } = await supabase
+            .from('deposits')
+            .select('user_id, amount, status')
+            .in('user_id', referredIds)
+            .eq('status', 'confirmed');
+
+        if (depError || !deposits) return;
+
+        // Count by tier amount
+        const counts = { '5500': 0, '10500': 0, '25000': 0, '50000': 0, '120000': 0, '309000': 0, '610000': 0 };
+        deposits.forEach(d => {
+            const amt = String(d.amount);
+            if (counts.hasOwnProperty(amt)) counts[amt]++;
+        });
+
+        document.getElementById('trackS1a').textContent = counts['5500'] || 0;
+        document.getElementById('trackS1b').textContent = counts['10500'] || 0;
+        document.getElementById('trackS2a').textContent = counts['25000'] || 0;
+        document.getElementById('trackS2b').textContent = counts['50000'] || 0;
+        document.getElementById('trackS3a').textContent = counts['120000'] || 0;
+        document.getElementById('trackS3b').textContent = counts['309000'] || 0;
+        document.getElementById('trackS4a').textContent = counts['610000'] || 0;
+
+    } catch (e) { console.error('Referral tracking error:', e); }
+}
+
+async function saveBankDetails() {
+    const b = document.getElementById('bankNameInput').value.trim();
+    const a = document.getElementById('bankAccNumberInput').value.trim();
+    const n = document.getElementById('bankAccNameInput').value.trim();
+    if (!b || !a || !n) return showToast('Fill all bank fields');
+    if (a.length !== 10) return showToast('Account number must be 10 digits');
+    toggleLoader(true);
+    try {
+        // Use RPC to bypass RLS
+        const { error } = await supabase.rpc('update_bank_details', {
+            p_user_id: currentUser.id,
+            p_bank_name: b,
+            p_account_number: a,
+            p_account_name: n
+        });
+        if (error) throw error;
+
+        currentUser.bank_name = b;
+        currentUser.account_number = a;
+        currentUser.account_name = n;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        showToast('✅ Bank details saved');
+        closeBankModal();
+    } catch (e) { 
+        console.error('Bank save error:', e);
+        showToast('❌ Save failed: ' + (e.message || 'Unknown error')); 
+    }
+    toggleLoader(false);
+}
+
+function openBankModal() {
+    if (!currentUser) return;
+    document.getElementById('bankNameInput').value = currentUser.bank_name || '';
+    document.getElementById('bankAccNumberInput').value = currentUser.account_number || '';
+    document.getElementById('bankAccNameInput').value = currentUser.account_name || '';
+    document.getElementById('bankDetailsModal').classList.remove('hidden');
+}
+
+function closeBankModal() {
+    document.getElementById('bankDetailsModal').classList.add('hidden');
+}
+
+function openAssistantModal() {
+    document.getElementById('assistantModal').classList.remove('hidden');
+}
+
+function closeAssistantModal() {
+    document.getElementById('assistantModal').classList.add('hidden');
+}
+
+async function saveProfile() {
+    const fullName = document.getElementById('profileFullName').value.trim();
+    const region = document.getElementById('profileRegion').value;
+    if (!fullName) return showToast('Full name is required');
+    toggleLoader(true);
+    try {
+        await supabase.from('profiles').update({ full_name: fullName, region: region }).eq('id', currentUser.id);
+        currentUser.full_name = fullName;
+        currentUser.region = region;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        showToast('✅ Profile updated');
+    } catch (e) { showToast('❌ Update failed'); }
+    toggleLoader(false);
+}
+
+async function applyAssistant(type) {
+    if (!currentUser) return;
+    toggleLoader(true, 'Checking eligibility...');
+    try {
+        // Get all direct referrals (level 1)
+        const { data: referrals } = await supabase.from('referrals').select('referred_id').eq('referrer_id', currentUser.id).eq('level', 1);
+        const referredIds = referrals ? referrals.map(r => r.referred_id) : [];
+
+        if (type === 'junior') {
+            // Count verified active referrals per tier for Junior
+            const tierCounts = { s1a: 0, s1b: 0, s2a: 0, s2b: 0, flexible: 0 };
+
+            if (referredIds.length > 0) {
+                for (const rid of referredIds) {
+                    const { data: deps } = await supabase.from('deposits')
+                        .select('amount, status')
+                        .eq('user_id', rid)
+                        .eq('status', 'confirmed');
+
+                    if (deps && deps.length > 0) {
+                        const amounts = deps.map(d => Number(d.amount));
+                        if (amounts.includes(5500)) tierCounts.s1a++;
+                        if (amounts.includes(10500)) tierCounts.s1b++;
+                        if (amounts.includes(25000)) tierCounts.s2a++;
+                        if (amounts.includes(50000)) tierCounts.s2b++;
+                        if (amounts.some(a => [5500, 10500, 25000, 50000, 120000, 309000, 610000].includes(a))) tierCounts.flexible++;
+                    }
+                }
+            }
+
+            const lockedTotal = Math.min(tierCounts.s1a, 8) + Math.min(tierCounts.s1b, 5) + Math.min(tierCounts.s2a, 5) + Math.min(tierCounts.s2b, 5);
+            const flexibleUsed = Math.min(Math.max(0, tierCounts.flexible - 23), 5);
+            const totalQual = lockedTotal + flexibleUsed;
+
+            if (totalQual < 28) {
+                toggleLoader(false);
+                return showToast(`Need 28 verified active referrals (23 locked + 5 flexible). You have ${totalQual}.`);
+            }
+        } else {
+            // Senior: count qualified Junior and Senior assistants in downline
+            let qualifiedJunior = 0;
+            let qualifiedSenior = 0;
+
+            // This would need a recursive query - simplified check for now
+            // Check assistant_applications table for qualified referrals
+            if (referredIds.length > 0) {
+                const { data: juniorApps } = await supabase.from('assistant_applications')
+                    .select('user_id')
+                    .in('user_id', referredIds)
+                    .eq('type', 'junior')
+                    .eq('status', 'approved');
+                qualifiedJunior = juniorApps ? juniorApps.length : 0;
+
+                const { data: seniorApps } = await supabase.from('assistant_applications')
+                    .select('user_id')
+                    .in('user_id', referredIds)
+                    .eq('type', 'senior')
+                    .eq('status', 'approved');
+                qualifiedSenior = seniorApps ? seniorApps.length : 0;
+            }
+
+            if (qualifiedJunior < 6 || qualifiedSenior < 6) {
+                toggleLoader(false);
+                return showToast(`Need 6 qualified Junior Assistants and 6 qualified Senior Assistants. You have ${qualifiedJunior} Junior, ${qualifiedSenior} Senior.`);
+            }
+        }
+
+        const { error } = await supabase.from('assistant_applications').insert({ user_id: currentUser.id, type: type });
+        if (error) throw error;
+        toggleLoader(false);
+        showToast('✅ Application submitted for review');
+    } catch (e) {
+        toggleLoader(false);
+        showToast('❌ ' + (e.message || 'Application failed'));
+    }
+}
+
+function copyCode(isLink) {
+    const code = currentUser ? currentUser.referral_code : '';
+    const txt = isLink ? `${window.location.origin}${window.location.pathname}?ref=${code}` : code;
+    navigator.clipboard.writeText(txt);
+    showToast(isLink ? '🔗 Link copied' : '📋 Code copied');
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    showToast('📋 Copied');
+}
+
+// ========================
+// HISTORY
+// ========================
+async function loadHistory() {
+    const feed = document.getElementById('historyFeed');
+    if (!supabase) { feed.innerHTML = '<div class="text-center text-red-400 py-10 text-sm">Connection error. Refresh and try again.</div>'; return; }
+    feed.innerHTML = '<div class="text-center text-gold-500/30 py-10 text-sm">Loading history...</div>';
+    try {
+        let query = supabase.from('history').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+        if (currentHistoryFilter !== 'all') {
+            query = query.eq('type', currentHistoryFilter);
+        }
+        const { data, error } = await query.limit(50);
+        if (error) {
+            console.error('History load error:', error);
+            feed.innerHTML = '<div class="text-center text-red-400 py-10 text-sm">Failed to load history. Error: ' + (error.message || 'Unknown') + '</div>';
+            return;
+        }
+        if (!data || data.length === 0) {
+            feed.innerHTML = '<div class="text-center text-gold-500/30 py-10 text-sm">No transactions found.</div>';
+            return;
+        }
+        renderHistoryList(data, feed);
+    } catch (e) {
+        console.error('History load error:', e);
+        feed.innerHTML = '<div class="text-center text-red-400 py-10 text-sm">Failed to load history. Error: ' + (e.message || 'Unknown') + '</div>';
+    }
+}
+
+function renderHistoryList(data, container) {
+    container.innerHTML = data.map(tx => {
+        let icon = 'ph-clock'; let iconColor = 'text-gold-500/50'; let amountColor = 'text-gold-500/50'; let sign = '';
+        if (tx.status === 'declined') { icon = 'ph-x-circle'; iconColor = 'text-red-500'; amountColor = 'text-red-500 line-through opacity-70'; }
+        else if (tx.status === 'pending') { icon = 'ph-hourglass'; iconColor = 'text-gold-500/50'; amountColor = 'text-gold-400'; sign = '~'; }
+        else {
+            if (tx.type === 'deposit') { icon = 'ph-arrow-circle-down'; iconColor = 'text-gold-400'; amountColor = 'text-gold-400'; sign = '+'; }
+            else if (tx.type === 'withdrawal') { icon = 'ph-arrow-circle-up'; iconColor = 'text-red-400'; amountColor = 'text-red-400'; sign = '-'; }
+            else if (tx.type === 'checkin') { icon = 'ph-check-circle'; iconColor = 'text-gold-400'; amountColor = 'text-gold-400'; sign = '+'; }
+            else if (tx.type === 'referral') { icon = 'ph-users'; iconColor = 'text-gold-400'; amountColor = 'text-gold-400'; sign = '+'; }
+            else if (tx.type === 'admin_credit') { icon = 'ph-plus-circle'; iconColor = 'text-green-400'; amountColor = 'text-green-400'; sign = '+'; }
+            else if (tx.type === 'admin_deduction') { icon = 'ph-minus-circle'; iconColor = 'text-red-400'; amountColor = 'text-red-400'; sign = '-'; }
+            else if (tx.type === 'assistant_reward') { icon = 'ph-star'; iconColor = 'text-gold-400'; amountColor = 'text-gold-400'; sign = '+'; }
+            else if (tx.type === 'refund') { icon = 'ph-arrow-u-up-left'; iconColor = 'text-green-400'; amountColor = 'text-green-400'; sign = '+'; }
+        }
+        return `
+        <div class="glass-panel rounded-2xl p-4 flex items-center justify-between border-gold-500/10">
+            <div class="flex items-start gap-3">
+                <div class="mt-0.5"><i class="ph-fill ${icon} ${iconColor} text-2xl"></i></div>
+                <div>
+                    <div class="text-xs font-bold text-gold-500/70 uppercase tracking-widest">${tx.type} ${tx.status === 'pending' ? '(Pending)' : ''}</div>
+                    <div class="text-[10px] text-gold-500/30 mt-0.5">${new Date(tx.created_at).toLocaleString()}</div>
+                    <div class="text-xs text-gold-500/50 mt-1 leading-relaxed pr-2">${tx.description}</div>
+                </div>
+            </div>
+            <div class="text-base font-black ${amountColor} flex-shrink-0 ml-1">${sign}₦${fmt(tx.amount)}</div>
+        </div>`;
+    }).join('');
+}
+
+function filterHistory(type) {
+    currentHistoryFilter = type;
+    document.querySelectorAll('.history-filter').forEach(btn => {
+        const isActive = btn.dataset.filter === type;
+        btn.classList.toggle('bg-gold-500/20', isActive);
+        btn.classList.toggle('text-gold-400', isActive);
+        btn.classList.toggle('border-gold-500/30', isActive);
+        btn.classList.toggle('bg-dark-850', !isActive);
+        btn.classList.toggle('text-gold-500/50', !isActive);
+        btn.classList.toggle('border-gold-500/10', !isActive);
+    });
+    loadHistory();
+}
+
+// ========================
+// ADMIN
+// ========================
+async function loadAdminData() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    await loadAdminStats();
+    await loadAdminUsers();
+    await loadAdminDeposits();
+    await loadAdminWithdrawals();
+    await loadAdminCheckins();
+    await loadAdminAssistants();
+    await loadAdminSettingsForm();
+}
+
+async function loadAdminStats() {
+    if (!supabase) { console.error('Supabase not available in loadAdminStats'); return; }
+    try {
+        const { data, error } = await supabase.rpc('get_admin_stats');
+        if (error) {
+            console.error('Supabase error in loadAdminStats:', error);
+            return;
+        }
+        if (!data || data.length === 0) return;
+        const s = data[0];
+        document.getElementById('adminTotalUsers').textContent = s.total_users || 0;
+        document.getElementById('adminActiveUsers').textContent = s.active_users || 0;
+        document.getElementById('adminTotalDeposits').textContent = `₦${fmt(s.total_deposits || 0)}`;
+        document.getElementById('adminTotalWithdrawals').textContent = `₦${fmt(s.total_withdrawals || 0)}`;
+        document.getElementById('adminTotalRewards').textContent = `₦${fmt(s.total_rewards || 0)}`;
+        document.getElementById('adminPendingCount').textContent = (s.pending_deposits || 0) + (s.pending_withdrawals || 0);
+    } catch (e) { console.error('Supabase error in loadAdminStats:', e); }
+}
+
+async function loadAdminUsers() {
+    const list = document.getElementById('adminUsersList');
+    const search = document.getElementById('adminUserSearch')?.value.trim() || '';
+    try {
+        let query = supabase.from('profiles').select('*').eq('role', 'user').order('created_at', { ascending: false });
+        if (search) {
+            query = query.or(`username.ilike.%${search}%,phone.ilike.%${search}%,referral_code.ilike.%${search}%`);
+        }
+        const { data, error } = await query.limit(50);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No users found.</div>';
+            return;
+        }
+        list.innerHTML = data.map(u => `
+            <div class="glass-panel rounded-2xl p-4 border-gold-500/10" id="userCard-${u.id}">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="text-sm font-bold text-white">${u.username || '—'}</div>
+                        <div class="text-[10px] text-gold-500/40">${u.phone || '—'} · ${u.referral_code || '—'}</div>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-full ${u.status === 'active' ? 'bg-gold-500/10 text-gold-400 border border-gold-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">${u.status}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-3 text-xs">
+                    <div class="bg-dark-850 rounded-lg p-2 text-center">
+                        <div class="text-gold-500/40 text-[10px]">Balance</div>
+                        <div class="text-white font-bold">₦${fmt(u.balance)}</div>
+                    </div>
+                    <div class="bg-dark-850 rounded-lg p-2 text-center">
+                        <div class="text-gold-500/40 text-[10px]">Locked</div>
+                        <div class="text-white font-bold">₦${fmt(u.locked_capital)}</div>
+                    </div>
+                    <div class="bg-dark-850 rounded-lg p-2 text-center">
+                        <div class="text-gold-500/40 text-[10px]">Income</div>
+                        <div class="text-gold-400 font-bold">₦${fmt(u.total_income)}</div>
+                    </div>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="adminAdjustBalance('${u.id}', 1000, 'credit')" class="px-3 py-1.5 rounded-lg bg-gold-500/10 text-gold-400 text-[10px] font-bold border border-gold-500/20 hover:bg-gold-500/20 transition">+₦1K</button>
+                    <button onclick="adminAdjustBalance('${u.id}', 5000, 'credit')" class="px-3 py-1.5 rounded-lg bg-gold-500/10 text-gold-400 text-[10px] font-bold border border-gold-500/20 hover:bg-gold-500/20 transition">+₦5K</button>
+                    <button onclick="adminAdjustBalance('${u.id}', 1000, 'deduct')" class="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-[10px] font-bold border border-red-500/20 hover:bg-red-500/20 transition">-₦1K</button>
+                    <button onclick="adminToggleBan('${u.id}', '${u.status}')" class="px-3 py-1.5 rounded-lg bg-dark-850 text-gold-500/50 text-[10px] font-bold border border-gold-500/10 hover:bg-dark-850/80 transition">${u.status === 'active' ? 'Ban' : 'Unban'}</button>
+                    <button onclick="adminDeleteUser('${u.id}')" class="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-[10px] font-bold border border-red-500/20 hover:bg-red-500/20 transition">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Supabase error in loadAdminUsers:', e);
+        list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load: ' + (e.message || JSON.stringify(e)) + '</div>';
+    }
+}
+
+function searchAdminUsers() {
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(loadAdminUsers, 400);
+}
+
+async function loadAdminDeposits() {
+    const list = document.getElementById('pendingDeposits');
+    try {
+        const { data, error } = await supabase.from('deposits').select('*, profiles(username, phone, full_name, bank_name, account_number, account_name)').eq('status', 'pending').order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No pending deposits.</div>';
+            return;
+        }
+        list.innerHTML = data.map(d => `
+            <div class="glass-panel rounded-2xl p-4 border-gold-500/20" id="depCard-${d.id}">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="text-xs font-bold text-gold-400">Deposit</div>
+                        <div class="text-[10px] text-gold-500/40">${d.profiles?.username || '—'} · ${d.profiles?.phone || '—'}</div>
+                    </div>
+                    <div class="text-lg font-extrabold text-white">₦${fmt(Number(d.amount))}</div>
+                </div>
+                <div class="bg-dark-850 rounded-xl p-3 mb-3 text-xs text-gold-500/50 space-y-1">
+                    <div class="flex justify-between"><span>Stage:</span><span class="text-white font-bold">${d.stage_name || '—'}</span></div>
+                    <div class="flex justify-between"><span>Name:</span><span class="text-white">${d.profiles?.full_name || '—'}</span></div>
+                    <div class="flex justify-between"><span>Bank:</span><span>${d.profiles?.bank_name || '—'}</span></div>
+                    <div class="flex justify-between"><span>Acct:</span><span class="font-mono text-white">${d.profiles?.account_number || '—'}</span></div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="approveDeposit('${d.id}', '${d.user_id}', ${d.amount})" class="flex-1 gold-gradient-bg text-dark-950 font-bold py-2.5 rounded-xl text-xs hover:opacity-90 transition">Approve</button>
+                    <button onclick="declineDeposit('${d.id}', '${d.user_id}', ${d.amount})" class="flex-1 bg-red-500/20 text-red-400 font-bold py-2.5 rounded-xl text-xs hover:bg-red-500/30 transition">Decline</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Supabase error in loadAdminDeposits:', e);
+        list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load: ' + (e.message || JSON.stringify(e)) + '</div>';
+    }
+}
+
+async function loadAdminWithdrawals() {
+    const list = document.getElementById('pendingWithdrawals');
+    try {
+        const { data, error } = await supabase.from('withdrawals').select('*, profiles(username, phone, full_name)').eq('status', 'pending').order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No pending withdrawals.</div>';
+            return;
+        }
+        list.innerHTML = data.map(w => `
+            <div class="glass-panel rounded-2xl p-4 border-red-500/20" id="wdCard-${w.id}">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="text-xs font-bold text-red-400">Withdrawal</div>
+                        <div class="text-[10px] text-gold-500/40">${w.profiles?.username || '—'} · ${w.profiles?.phone || '—'}</div>
+                    </div>
+                    <div class="text-lg font-extrabold text-white">₦${fmt(Number(w.amount))}</div>
+                </div>
+                <div class="bg-dark-850 rounded-xl p-3 mb-3 text-xs text-gold-500/50 space-y-1">
+                    <div class="flex justify-between"><span>Net Amount:</span><span class="text-white font-bold">₦${fmt(w.net_amount)}</span></div>
+                    <div class="flex justify-between"><span>Fee:</span><span>₦${fmt(w.fee_amount)}</span></div>
+                    <div class="flex justify-between"><span>Bank:</span><span>${w.bank_name || '—'}</span></div>
+                    <div class="flex justify-between"><span>Acct:</span><span class="font-mono text-white">${w.account_number || '—'}</span></div>
+                    <div class="flex justify-between"><span>Name:</span><span>${w.account_name || '—'}</span></div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="approveWithdrawal('${w.id}', '${w.user_id}', ${w.amount})" class="flex-1 gold-gradient-bg text-dark-950 font-bold py-2.5 rounded-xl text-xs hover:opacity-90 transition">Approve</button>
+                    <button onclick="declineWithdrawal('${w.id}', '${w.user_id}', ${w.amount})" class="flex-1 bg-red-500/20 text-red-400 font-bold py-2.5 rounded-xl text-xs hover:bg-red-500/30 transition">Decline</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Supabase error in loadAdminWithdrawals:', e);
+        list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load: ' + (e.message || JSON.stringify(e)) + '</div>';
+    }
+}
+
+async function loadAdminCheckins() {
+    const list = document.getElementById('adminCheckinsList');
+    try {
+        const { data, error } = await supabase.from('check_ins').select('*, profiles(username, phone)').order('created_at', { ascending: false }).limit(50);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No check-ins yet.</div>';
+            return;
+        }
+        list.innerHTML = data.map(c => `
+            <div class="glass-panel rounded-2xl p-3 flex items-center justify-between border-gold-500/10">
+                <div class="flex items-center gap-3">
+                    <i class="ph-fill ph-check-circle text-gold-400 text-xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">${c.profiles?.username || '—'}</div>
+                        <div class="text-[10px] text-gold-500/40">${c.checkin_date}</div>
+                    </div>
+                </div>
+                <div class="text-sm font-bold text-gold-400">+₦${fmt(c.amount)}</div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Supabase error in loadAdminCheckins:', e);
+        list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load: ' + (e.message || JSON.stringify(e)) + '</div>';
+    }
+}
+
+async function loadAdminAssistants() {
+    const list = document.getElementById('adminAssistantsList');
+    try {
+        const { data, error } = await supabase.from('assistant_applications').select('*, profiles(username, phone, full_name)').order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-center text-gold-500/30 py-6 text-xs">No applications yet.</div>';
+            return;
+        }
+        list.innerHTML = data.map(a => `
+            <div class="glass-panel rounded-2xl p-4 border-gold-500/10" id="assistCard-${a.id}">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <div class="text-sm font-bold text-white">${a.profiles?.username || '—'}</div>
+                        <div class="text-[10px] text-gold-500/40">${a.type === 'junior' ? 'EMX Junior' : 'EMX Senior'} Assistant</div>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-full ${a.status === 'approved' ? 'bg-gold-500/10 text-gold-400 border border-gold-500/20' : a.status === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-gold-500/10 text-gold-500/50 border border-gold-500/10'}">${a.status}</span>
+                </div>
+                <div class="flex gap-2 mt-3">
+                    <button onclick="approveAssistant('${a.id}', '${a.user_id}', '${a.type}')" class="flex-1 gold-gradient-bg text-dark-950 font-bold py-2 rounded-xl text-xs hover:opacity-90 transition">Approve</button>
+                    <button onclick="rejectAssistant('${a.id}')" class="flex-1 bg-red-500/20 text-red-400 font-bold py-2 rounded-xl text-xs hover:bg-red-500/30 transition">Reject</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Supabase error in loadAdminAssistants:', e);
+        list.innerHTML = '<div class="text-center text-red-400 py-6 text-xs">Failed to load: ' + (e.message || JSON.stringify(e)) + '</div>';
+    }
+}
+
+async function loadAdminSettingsForm() {
+    if (!appSettings) return;
+    document.getElementById('settingTelegram').value = appSettings.telegram_link || '';
+    document.getElementById('settingCompany').value = appSettings.company_description || '';
+    document.getElementById('settingBankName').value = appSettings.deposit_bank_name || '';
+    document.getElementById('settingAccNum').value = appSettings.deposit_account_number || '';
+    document.getElementById('settingAccName').value = appSettings.deposit_account_name || '';
+    document.getElementById('settingWithdrawalFee').value = appSettings.withdrawal_fee_percent || 15;
+    document.getElementById('settingCheckin').value = appSettings.checkin_percent || 20;
+    document.getElementById('settingRefA').value = appSettings.referral_level_a_percent || 20;
+    document.getElementById('settingRefB').value = appSettings.referral_level_b_percent || 5;
+    document.getElementById('settingRefC').value = appSettings.referral_level_c_percent || 2;
+    document.getElementById('settingJunior').value = appSettings.assistant_junior_reward || 50000;
+    document.getElementById('settingSenior').value = appSettings.assistant_senior_reward || 100000;
+    document.getElementById('settingStartHour').value = appSettings.withdrawal_start_hour || 9;
+    document.getElementById('settingEndHour').value = appSettings.withdrawal_end_hour || 17;
+    document.getElementById('settingAnnouncement').value = appSettings.announcement || '';
+}
+
+async function saveAdminSettings() {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    const updates = {
+        telegram_link: document.getElementById('settingTelegram').value,
+        company_description: document.getElementById('settingCompany').value,
+        deposit_bank_name: document.getElementById('settingBankName').value,
+        deposit_account_number: document.getElementById('settingAccNum').value,
+        deposit_account_name: document.getElementById('settingAccName').value,
+        withdrawal_fee_percent: parseFloat(document.getElementById('settingWithdrawalFee').value) || 15,
+        checkin_percent: parseFloat(document.getElementById('settingCheckin').value) || 20,
+        referral_level_a_percent: parseFloat(document.getElementById('settingRefA').value) || 20,
+        referral_level_b_percent: parseFloat(document.getElementById('settingRefB').value) || 5,
+        referral_level_c_percent: parseFloat(document.getElementById('settingRefC').value) || 2,
+        assistant_junior_reward: parseFloat(document.getElementById('settingJunior').value) || 50000,
+        assistant_senior_reward: parseFloat(document.getElementById('settingSenior').value) || 100000,
+        withdrawal_start_hour: parseInt(document.getElementById('settingStartHour').value) || 9,
+        withdrawal_end_hour: parseInt(document.getElementById('settingEndHour').value) || 17,
+        announcement: document.getElementById('settingAnnouncement').value
+    };
+    toggleLoader(true, 'Saving Settings...');
+    try {
+        const { error } = await supabase.from('admin_settings').upsert({ id: 1, ...updates });
+        if (error) throw error;
+        showToast('✅ Settings saved');
+        await loadAppSettings();
+    } catch (e) { showToast('❌ ' + (e.message || 'Save failed')); }
+    toggleLoader(false);
+}
+
+function switchAdminTab(tab) {
+    const panels = ['users', 'deposits', 'withdrawals', 'checkins', 'assistants', 'settings'];
+    panels.forEach(p => {
+        document.getElementById('adminPanel' + p.charAt(0).toUpperCase() + p.slice(1)).classList.toggle('hidden', p !== tab);
+        const btn = document.getElementById('adminTab' + (p === 'checkins' ? 'Checkin' : p === 'assistants' ? 'Assist' : p.charAt(0).toUpperCase() + p.slice(1)));
+        if (btn) {
+            if (p === tab) { btn.classList.add('bg-dark-850', 'text-gold-400', 'shadow-md'); btn.classList.remove('text-gold-500/50'); }
+            else { btn.classList.remove('bg-dark-850', 'text-gold-400', 'shadow-md'); btn.classList.add('text-gold-500/50'); }
+        }
+    });
+}
+
+// Admin Actions
+async function approveDeposit(depositId, userId, amount) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    toggleLoader(true, 'Approving...');
+    try {
+        const { data: dep } = await supabase.from('deposits').select('status, stage_name').eq('id', depositId).single();
+        if (!dep || dep.status !== 'pending') { toggleLoader(false); return showToast('Already processed'); }
+
+        const plan = INVESTMENT_PLANS.find(p => p.name === dep.stage_name);
+        const depositAmt = Number(amount);
+
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        const newLocked = Math.max(parseFloat(profile.locked_capital || 0), depositAmt);
+        const newTotalDep = parseFloat(profile.total_deposits || 0) + depositAmt;
+
+        await supabase.from('profiles').update({ locked_capital: newLocked, total_deposits: newTotalDep }).eq('id', userId);
+        await supabase.from('deposits').update({ status: 'confirmed' }).eq('id', depositId);
+
+        // Log via RPC (wrapped so it doesn't break the main flow)
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: 'deposit',
+                p_amount: depositAmt,
+                p_description: `Deposit Confirmed — ₦${fmt(depositAmt)} (${dep.stage_name})`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for deposit approval:', histErr);
+        }
+
+        if (profile.referred_by && plan) {
+            const { data: prevDeps } = await supabase.from('deposits').select('id').eq('user_id', userId).eq('status', 'confirmed').neq('id', depositId);
+            if (!prevDeps || prevDeps.length === 0) {
+                const { data: referrer } = await supabase.from('profiles').select('*').eq('referral_code', profile.referred_by).maybeSingle();
+                if (referrer) {
+                    const welcomeBonus = plan.dailyReward;
+                    const refNewBal = parseFloat(referrer.balance || 0) + welcomeBonus;
+                    const refNewInc = parseFloat(referrer.total_income || 0) + welcomeBonus;
+                    await supabase.from('profiles').update({ balance: refNewBal, total_income: refNewInc }).eq('id', referrer.id);
+                    try {
+                        await supabase.rpc('insert_history', {
+                            p_user_id: referrer.id,
+                            p_type: 'referral',
+                            p_amount: welcomeBonus,
+                            p_description: `Referral Welcome Bonus — ₦${fmt(welcomeBonus)} from ${profile.username}`,
+                            p_status: 'confirmed'
+                        });
+                    } catch (histErr) {
+                        console.error('History logging failed for referral bonus:', histErr);
+                    }
+                }
+            }
+        }
+
+        if (currentUser && userId === currentUser.id) {
+            const { data: updated } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            if (updated) { currentUser = updated; localStorage.setItem('currentUser', JSON.stringify(updated)); }
+        }
+        document.getElementById(`depCard-${depositId}`)?.remove();
+        showToast('✅ Deposit approved');
+    } catch (e) { showToast('❌ ' + (e.message || 'Approval failed')); }
+    toggleLoader(false);
+}
+
+async function declineDeposit(depositId, userId, amount) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    toggleLoader(true);
+    try {
+        await supabase.from('deposits').update({ status: 'declined' }).eq('id', depositId);
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: 'deposit',
+                p_amount: amount,
+                p_description: `Deposit Declined — ₦${fmt(amount)}`,
+                p_status: 'declined'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for decline deposit:', histErr);
+        }
+        document.getElementById(`depCard-${depositId}`)?.remove();
+        showToast('🚫 Deposit declined');
+    } catch (e) { showToast('❌ Error: ' + (e.message || 'Unknown')); }
+    toggleLoader(false);
+}
+
+async function approveWithdrawal(withdrawalId, userId, amount) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    toggleLoader(true);
+    try {
+        await supabase.from('withdrawals').update({ status: 'confirmed' }).eq('id', withdrawalId);
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: 'withdrawal',
+                p_amount: amount,
+                p_description: `Withdrawal Approved — ₦${fmt(amount)}`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for approve withdrawal:', histErr);
+        }
+        document.getElementById(`wdCard-${withdrawalId}`)?.remove();
+        showToast('✅ Withdrawal approved');
+    } catch (e) { showToast('❌ Approval failed: ' + (e.message || 'Unknown')); }
+    toggleLoader(false);
+}
+
+async function declineWithdrawal(withdrawalId, userId, amount) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    toggleLoader(true);
+    try {
+        const { data: profile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
+        const refundedBal = parseFloat(profile.balance || 0) + amount;
+        await supabase.from('profiles').update({ balance: refundedBal }).eq('id', userId);
+        await supabase.from('withdrawals').update({ status: 'declined' }).eq('id', withdrawalId);
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: 'refund',
+                p_amount: amount,
+                p_description: `Withdrawal Declined (Refund) — ₦${fmt(amount)}`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for decline withdrawal:', histErr);
+        }
+        document.getElementById(`wdCard-${withdrawalId}`)?.remove();
+        showToast('🚫 Declined & refunded');
+    } catch (e) { showToast('❌ Error: ' + (e.message || 'Unknown')); }
+    toggleLoader(false);
+}
+
+async function adminAdjustBalance(userId, amount, type) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    try {
+        const { data: profile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
+        const currentBal = parseFloat(profile.balance || 0);
+        const newBal = type === 'credit' ? currentBal + amount : Math.max(0, currentBal - amount);
+        await supabase.from('profiles').update({ balance: newBal }).eq('id', userId);
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: type === 'credit' ? 'admin_credit' : 'admin_deduction',
+                p_amount: amount,
+                p_description: `Admin ${type === 'credit' ? 'Credit' : 'Deduction'} — ₦${fmt(amount)}`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for admin adjust:', histErr);
+        }
+        showToast(`✅ Balance ${type === 'credit' ? 'credited' : 'deducted'}`);
+        loadAdminUsers();
+    } catch (e) { showToast('❌ Failed: ' + (e.message || 'Unknown')); }
+}
+
+async function adminToggleBan(userId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+    try {
+        await supabase.from('profiles').update({ status: newStatus }).eq('id', userId);
+        showToast(`User ${newStatus === 'banned' ? 'banned' : 'unbanned'}`);
+        loadAdminUsers();
+    } catch (e) { showToast('❌ Failed'); }
+}
+
+async function adminDeleteUser(userId) {
+    if (!confirm('WARNING: This will permanently delete the user and all their data. Continue?')) return;
+    toggleLoader(true);
+    try {
+        await supabase.from('profiles').delete().eq('id', userId);
+        showToast('✅ User deleted');
+        loadAdminUsers();
+    } catch (e) { showToast('❌ Delete failed'); }
+    toggleLoader(false);
+}
+
+async function approveAssistant(appId, userId, type) {
+    if (!supabase) { showToast('Connection error. Refresh and try again.'); return; }
+    toggleLoader(true);
+    try {
+        const reward = type === 'junior' ? (appSettings?.assistant_junior_reward || 50000) : (appSettings?.assistant_senior_reward || 100000);
+        await supabase.from('assistant_applications').update({ status: 'approved' }).eq('id', appId);
+        const { data: profile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
+        const newBal = parseFloat(profile.balance || 0) + reward;
+        await supabase.from('profiles').update({ balance: newBal }).eq('id', userId);
+        try {
+            await supabase.rpc('insert_history', {
+                p_user_id: userId,
+                p_type: 'assistant_reward',
+                p_amount: reward,
+                p_description: `Assistant Reward (${type}) — ₦${fmt(reward)}`,
+                p_status: 'confirmed'
+            });
+        } catch (histErr) {
+            console.error('History logging failed for assistant reward:', histErr);
+        }
+        document.getElementById(`assistCard-${appId}`)?.remove();
+        showToast('✅ Application approved');
+    } catch (e) { showToast('❌ Failed: ' + (e.message || 'Unknown')); }
+    toggleLoader(false);
+}
+
+async function rejectAssistant(appId) {
+    try {
+        await supabase.from('assistant_applications').update({ status: 'rejected' }).eq('id', appId);
+        document.getElementById(`assistCard-${appId}`)?.remove();
+        showToast('Application rejected');
+    } catch (e) { showToast('❌ Failed'); }
+}
+
+// ========================
+// REFRESH USER
+// ========================
+async function refreshUserData() {
+    if (!currentUser) return;
+    try {
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (error) throw error;
+        currentUser = data;
+        localStorage.setItem('currentUser', JSON.stringify(data));
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${data.username || 'User'}`;
+        if (document.getElementById('profileBalance')) document.getElementById('profileBalance').textContent = `₦${fmt(data.balance)}`;
+    } catch (e) { console.error(e); }
+}
+
+// ========================
+// TELEGRAM POPUP
+// ========================
+function openTelegramPopup() {
+    document.getElementById('telegramPopup').classList.remove('hidden');
+}
+function closeTelegramPopup() {
+    document.getElementById('telegramPopup').classList.add('hidden');
+}
+
+// ========================
+// INIT
+// ========================
+document.addEventListener('DOMContentLoaded', async () => {
+    // Fallback init attempt
+    if (!supabase && window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    if (!supabase) { showToast('Supabase not loaded. Check connection.'); return; }
+
+    const cached = localStorage.getItem('currentUser');
+    const rem = localStorage.getItem('emx_remember');
+
+    if (rem === '1') {
+        document.getElementById('loginUsername').value = localStorage.getItem('emx_username') || '';
+        document.getElementById('loginPassword').value = localStorage.getItem('emx_password') || '';
+    }
+
+    if (cached) {
+        toggleLoader(true, 'Restoring Session...');
+        try {
+            const parsed = JSON.parse(cached);
+            const { data, error } = await supabase.from('profiles').select('*').eq('id', parsed.id).maybeSingle();
+            if (error || !data) throw new Error('Session expired');
+            if (data.status === 'banned') throw new Error('Account suspended');
+
+            currentUser = data;
+            localStorage.setItem('currentUser', JSON.stringify(data));
+            initRealtime();
+            await loadAppSettings();
+            toggleLoader(false);
+            showHome();
+        } catch (e) {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('emx_remember');
+            currentUser = null;
+            toggleLoader(false);
+            switchView('authPage');
+            checkReferralLink();
+        }
+    } else {
+        switchView('authPage');
+        checkReferralLink();
+    }
+});
+
+function checkReferralLink() {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get('ref');
+    if (refCode) {
+        switchAuthTab('signup');
+        document.getElementById('signupReferral').value = refCode;
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+</script>
+
+</div>
+</body>
+</html>
